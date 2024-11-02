@@ -23,8 +23,8 @@ model User {
   
   // Relación con el sistema de citas
   TypeIdCard    TypeIdCard?
-  Patients      Patients?
-  Professional  Professional?
+  patient      Patients?
+  professional  Professional?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

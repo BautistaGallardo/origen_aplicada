@@ -10,11 +10,12 @@ export const loginAction = async (
     values: z.infer<typeof LoginPacienteSchema> | z.infer<typeof LoginProfesionalSchema>
 ) => {
     try {
+        // Buscar el usuario en la base de datos
         const user = await db.user.findUnique({
             where: { email: values.email },
             include: {
-                paciente: true,
-                profesional: true,
+                patient: true,
+                professional: true,
             },
         });
 
