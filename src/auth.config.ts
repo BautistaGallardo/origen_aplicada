@@ -4,6 +4,8 @@ import { LoginPacienteSchema } from "./libs/zod"
 import { db } from "./libs/db"
 import bcrypt from "bcryptjs"
 
+// los comentearis en ingles dejalos ro, son los comentarios de la doc de next-auth, me ayuda a acordarme rapido de lo que hacia cada parte del codigo
+
 // Notice this is only an object, not a full Auth.js instance
 export default {
     providers: [
