@@ -1,0 +1,171 @@
+// schema.prisma
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Modelos de NextAuth
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  password      String
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  Authenticator Authenticator[]
+  
+  // Relación con el sistema de citas
+  TypeIdCard    TypeIdCard?
+  Patients      Patients?
+  Professional  Professional?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+// Modelos del sistema de citas
+
+model AdminUser {
+  admin_id        Int      @id @default(autoincrement())
+  name            String
+  password        String
+  registration_date DateTime
+}
+
+model TypeIdCard {
+  type_idcard_id  Int      @id @default(autoincrement())
+  type            String
+  id_number       String
+  userId          String   @unique
+  User            User     @relation(fields: [userId], references: [id])
+
+  @@unique([type, id_number])
+}
+
+model Patients {
+  patient_id      Int       @id @default(autoincrement())
+  photo           String?
+  registration_date DateTime
+  userId          String    @unique
+  User            User      @relation(fields: [userId], references: [id])
+  Observations    Observation[]
+  Reservations    Reservation[]
+  Appointments    Appointment[]
+}
+
+model Professional {
+  professional_id Int       @id @default(autoincrement())
+  specialty       String
+  photo           String?
+  registration_date DateTime
+  userId          String    @unique
+  User            User      @relation(fields: [userId], references: [id])
+  Observations    Observation[]
+  Appointments    Appointment[]
+}
+
+model Observation {
+  observation_id  Int       @id @default(autoincrement())
+  note            String
+  professional_id Int
+  patient_id      Int
+  appointment_id  Int
+  Professional    Professional @relation(fields: [professional_id], references: [professional_id])
+  Patient         Patients     @relation(fields: [patient_id], references: [patient_id])
+  Appointment     Appointment  @relation(fields: [appointment_id], references: [appointment_id])
+}
+
+model TypeConsultation {
+  type_consultation_id Int  @id @default(autoincrement())
+  type                 String
+  description          String
+  appointment_id       Int
+  Appointment          Appointment @relation(fields: [appointment_id], references: [appointment_id])
+}
+
+model Appointment {
+  appointment_id   Int       @id @default(autoincrement())
+  date             DateTime
+  hour             String
+  state            String
+  professional_id  Int
+  patient_id       Int
+  Professional     Professional @relation(fields: [professional_id], references: [professional_id])
+  Patient          Patients     @relation(fields: [patient_id], references: [patient_id])
+  Observations     Observation[]
+  TypeConsultations TypeConsultation[]
+  Reservations     Reservation[]
+}
+
+model Reservation {
+  appointment_id   Int
+  patient_id       Int
+  date             DateTime
+  Appointment      Appointment @relation(fields: [appointment_id], references: [appointment_id])
+  Patient          Patients     @relation(fields: [patient_id], references: [patient_id])
+
+  @@id([appointment_id, patient_id])
+}
