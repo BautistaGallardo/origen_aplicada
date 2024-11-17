@@ -1,8 +1,9 @@
 import React from 'react'
+import LandingPage from './pages/landingPage/page'
 
 const HomePage = () => {
   return (
-    <div>HomePage</div>
+    <LandingPage/>
   )
 }
 

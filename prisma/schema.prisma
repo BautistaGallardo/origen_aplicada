@@ -13,10 +13,13 @@ generator client {
 model User {
   id            String          @id @default(cuid())
   name          String?
+  lastName      String?
   email         String?         @unique
   emailVerified DateTime?
   password      String
   image         String?
+  phone_number  String?
+  date_of_birth DateTime?
   accounts      Account[]
   sessions      Session[]
   Authenticator Authenticator[]
@@ -89,14 +92,14 @@ model Authenticator {
 // Modelos del sistema de citas
 
 model AdminUser {
-  admin_id        Int      @id @default(autoincrement())
+  id              String          @id @default(cuid())
   name            String
   password        String
-  registration_date DateTime
+  registration_date DateTime      @default(now())
 }
 
 model TypeIdCard {
-  type_idcard_id  Int      @id @default(autoincrement())
+  id            String          @id @default(cuid()) 
   type            String
   id_number       String
   userId          String   @unique
@@ -106,9 +109,9 @@ model TypeIdCard {
 }
 
 model Patients {
-  patient_id      Int       @id @default(autoincrement())
+  id            String          @id @default(cuid()) 
   photo           String?
-  registration_date DateTime
+  registration_date DateTime?    @default(now())
   userId          String    @unique
   User            User      @relation(fields: [userId], references: [id])
   Observations    Observation[]
@@ -117,10 +120,10 @@ model Patients {
 }
 
 model Professional {
-  professional_id Int       @id @default(autoincrement())
+  id            String          @id @default(cuid()) 
   specialty       String
   photo           String?
-  registration_date DateTime
+  registration_date DateTime    @default(now())
   userId          String    @unique
   User            User      @relation(fields: [userId], references: [id])
   Observations    Observation[]
@@ -128,44 +131,45 @@ model Professional {
 }
 
 model Observation {
-  observation_id  Int       @id @default(autoincrement())
+  id            String          @id @default(cuid()) 
   note            String
-  professional_id Int
-  patient_id      Int
-  appointment_id  Int
-  Professional    Professional @relation(fields: [professional_id], references: [professional_id])
-  Patient         Patients     @relation(fields: [patient_id], references: [patient_id])
-  Appointment     Appointment  @relation(fields: [appointment_id], references: [appointment_id])
+  professional_id String
+  patient_id      String
+  appointment_id  String
+  Professional    Professional @relation(fields: [professional_id], references: [id])
+  Patient         Patients     @relation(fields: [patient_id], references: [id])
+  Appointment     Appointment  @relation(fields: [appointment_id], references: [id])
 }
 
 model TypeConsultation {
-  type_consultation_id Int  @id @default(autoincrement())
+  id            String          @id @default(cuid())
   type                 String
   description          String
-  appointment_id       Int
-  Appointment          Appointment @relation(fields: [appointment_id], references: [appointment_id])
+  appointment_id       String
+  Appointment          Appointment @relation(fields: [appointment_id], references: [id])
 }
 
 model Appointment {
-  appointment_id   Int       @id @default(autoincrement())
+  id            String          @id @default(cuid()) 
   date             DateTime
   hour             String
   state            String
-  professional_id  Int
-  patient_id       Int
-  Professional     Professional @relation(fields: [professional_id], references: [professional_id])
-  Patient          Patients     @relation(fields: [patient_id], references: [patient_id])
+  professional_id  String
+  patient_id       String
+  Professional     Professional @relation(fields: [professional_id], references: [id])
+  Patient          Patients     @relation(fields: [patient_id], references: [id])
   Observations     Observation[]
   TypeConsultations TypeConsultation[]
   Reservations     Reservation[]
 }
 
 model Reservation {
-  appointment_id   Int
-  patient_id       Int
+  appointment_id   String
+  patient_id       String
   date             DateTime
-  Appointment      Appointment @relation(fields: [appointment_id], references: [appointment_id])
-  Patient          Patients     @relation(fields: [patient_id], references: [patient_id])
+  Appointment      Appointment @relation(fields: [appointment_id], references: [id]) // Change references to 'id'
+  Patient          Patients     @relation(fields: [patient_id], references: [id])
 
   @@id([appointment_id, patient_id])
 }
+
