@@ -1,17 +1,18 @@
 "use client"
-
 import * as React from "react"
 import Link from "next/link"
 import { Menu } from "lucide-react"
+import { useSession } from 'next-auth/react';
+
 
 export default function Navbar() {
   const [state, setState] = React.useState(false)
 
   const menus = [
-    { title: "Inicio", path: "/your-path" },
-    { title: "Sobre Nosotros", path: "/your-path" },
-    { title: "Profesionales", path: "/your-path" },
-    { title: "Contactanos", path: "/your-path" },
+    { title: "Inicio", path: "/" },
+    { title: "Sobre Nosotros", path: "/" },
+    { title: "Profesionales", path: "/" },
+    { title: "Contactanos", path: "/" },
   ]
 
   return (

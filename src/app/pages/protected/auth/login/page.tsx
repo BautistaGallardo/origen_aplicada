@@ -7,7 +7,6 @@ import { loginAction } from "@/actions/singin";
 import { LoginPacienteSchema } from "@/libs/zod";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { resolve } from "path";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
