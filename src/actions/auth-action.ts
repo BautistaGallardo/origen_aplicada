@@ -53,3 +53,55 @@ export const registerPatientAction = async (
         throw new Error(error.message || "Ocurrió un error inesperado");
     }
 };
+
+export const registerProfessionalAction = async (
+  values: z.infer<typeof RegisterProfesionalSchema>
+) => {
+  try {
+    // Verifica si el usuario ya existe
+    const existingUser = await db.user.findUnique({
+      where: { email: values.email },
+    });
+
+    if (existingUser) {
+      throw new Error("El usuario ya existe");
+    }
+
+    // Encripta la contraseña
+    const hashedPassword = await hash(values.password, 10);
+
+    // Crea el usuario en la tabla user
+    const newUser = await db.user.create({
+      data: {
+        email: values.email,
+        password: hashedPassword,
+        name: values.name,
+        lastName: values.lastname,
+        phone_number: values.phone_number,
+        date_of_birth: new Date(values.date_of_birth), // Asegúrate de convertir la fecha
+      },
+    });
+
+    // Crea el registro en la tabla professional
+    const professional = await db.professional.create({
+      data: {
+        userId: newUser.id,
+        specialty: values.specialty,
+        photo: values.photo || null, // Foto opcional
+      },
+    });
+
+    // Crea el registro en la tabla de tipo de ID
+    const typeIdCard = await db.typeIdCard.create({
+      data: {
+        userId: newUser.id,
+        type: values.type_id_card,
+        id_number: values.id_card,
+      },
+    });
+
+    return newUser; // Devuelve el usuario creado
+  } catch (error: any) {
+    throw new Error(error.message || "Ocurrió un error inesperado");
+  }
+};

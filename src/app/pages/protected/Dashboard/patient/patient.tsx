@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import AddTurnoModal from "./TurnoModal";
 import TurnosTable from "./TurnoTable";
 import { Button } from "@/components/ui/button";
-
-const DashboardPatient = () => {
+import {signOut} from "next-auth/react"
+const PacienteDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -15,15 +15,19 @@ const DashboardPatient = () => {
           <ul>
             <li>
               <a
-                href="#"
+                href="/"
                 className="block py-2 px-4 bg-gray-300 rounded hover:bg-gray-400"
               >
-                Pacientes
+                Paciente
               </a>
             </li>
           </ul>
         </nav>
-        <Button className="mt-4 w-full" variant="secondary">
+        <Button 
+          className="mt-4 w-full" 
+          variant="secondary"
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
           Salir
         </Button>
       </aside>
@@ -39,4 +43,4 @@ const DashboardPatient = () => {
   );
 };
 
-export default DashboardPatient;
+export default PacienteDashboard;

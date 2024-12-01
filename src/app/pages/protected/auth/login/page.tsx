@@ -13,21 +13,21 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { data: session, update } = useSession();
-  const route = useRouter()
+  const route = useRouter();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-  
+
     try {
       const values = LoginPacienteSchema.parse({ email, password });
       const response = await loginAction(values);
 
-      console.log(session)
-  
-      if (response.success) { // Verifica si es exitoso
-        route.push('/pages/protected/dashboard/patient')
-      } else if (response.error) { // Captura errores específicos
+      console.log(session);
+
+      if (response.success) {
+        route.push("/pages/protected/Dashboard/patient");
+      } else if (response.error) {
         setError(response.error);
       } else {
         setError("Error desconocido en el inicio de sesión.");
@@ -65,6 +65,17 @@ const LoginForm = () => {
         />
         <Button type="submit" className="w-full">Iniciar Sesión</Button>
       </form>
+      <div className="mt-6 text-center">
+        <p className="text-sm text-gray-500">
+          ¿No tienes cuenta?{" "}
+          <a
+            href="/pages/protected/auth/register-professional"
+            className="text-blue-600 hover:underline"
+          >
+            Regístrate
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
