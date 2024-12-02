@@ -116,7 +116,6 @@ model Patients {
   User            User      @relation(fields: [userId], references: [id])
   Observations    Observation[]
   Reservations    Reservation[]
-  Appointments    Appointment[]
 }
 
 model Professional {
@@ -155,9 +154,7 @@ model Appointment {
   hour             String
   state            String
   professional_id  String
-  patient_id       String
   Professional     Professional @relation(fields: [professional_id], references: [id])
-  Patient          Patients     @relation(fields: [patient_id], references: [id])
   Observations     Observation[]
   TypeConsultations TypeConsultation[]
   Reservations     Reservation[]
@@ -167,6 +164,7 @@ model Reservation {
   appointment_id   String
   patient_id       String
   date             DateTime
+  state            String
   Appointment      Appointment @relation(fields: [appointment_id], references: [id]) // Change references to 'id'
   Patient          Patients     @relation(fields: [patient_id], references: [id])
 

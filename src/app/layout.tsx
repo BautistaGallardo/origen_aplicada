@@ -28,15 +28,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <SessionProvider>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Nav/>
-        <SessionProvider>
+        
           {children}
-        </SessionProvider>
+        
         <Footer/>
       </body>
+      </SessionProvider>
     </html>
   );
 }
