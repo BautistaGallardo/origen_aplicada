@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,20 +17,21 @@ import { useForm } from "react-hook-form";
 import type { Control, FieldPath } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { registerProfessinalAction } from "@/actions/auth-action";
+import { RegisterProfesionalSchema } from "@/libs/zod";
 
 // Definición del esquema de validación usando Zod
 const formSchema = z.object({
   email: z.string().email(),
-  username: z.string().min(3).max(50),
   password: z.string().min(8),
-  nombre: z.string(),
-  apellido: z.string(),
-  telefono: z.string(),
-  documento: z.string(),
-  nacionalidad: z.string(),
-  fechaNacimiento: z.string(),
-  especialidad: z.string(),
-  foto: z.instanceof(File).optional(),
+  name: z.string(),
+  lastname: z.string(),
+  phone_number: z.string(),
+  id_card: z.string(),
+  type_id_card: z.string(),
+  date_of_birth: z.string(),
+  specialty: z.string(),
+  photo: z.instanceof(File).optional(),
 });
 
 const SignupForm = () => {
@@ -42,39 +42,43 @@ const SignupForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      username: "",
+      //username: "",
       password: "",
-      nombre: "",
-      apellido: "",
-      telefono: "",
-      documento: "",
-      nacionalidad: "",
-      fechaNacimiento: "",
-      especialidad: "",
+      name: "",
+      lastname: "",
+      phone_number: "",
+      id_card: "",
+      type_id_card: "",
+      date_of_birth: "",
+      specialty: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const formData = new FormData();
-    formData.append("email", values.email);
-    formData.append("username", values.username);
-    formData.append("password", values.password);
-    formData.append("nombre", values.nombre);
-    formData.append("apellido", values.apellido);
-    formData.append("telefono", values.telefono);
-    formData.append("documento", values.documento);
-    formData.append("nacionalidad", values.nacionalidad);
-    formData.append("fechaNacimiento", selectedDate ? selectedDate.toISOString() : "");
-    formData.append("especialidad", values.especialidad);
-    if (selectedFile) formData.append("foto", selectedFile);
-
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
+      let photoString: string | undefined;
+  
+      if (selectedFile) {
+        // Convertir el archivo a base64
+        const reader = new FileReader();
+        const filePromise = new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject("Error al leer el archivo");
+          reader.readAsDataURL(selectedFile); // Convierte a Base64
+        });
+  
+        photoString = await filePromise;
+      }
+  
+      const payload = {
+        ...values,
+        date_of_birth: selectedDate || new Date(), // Asegúrate de usar un objeto Date
+        photo: photoString, // Asignar la cadena base64
+      };
+  
+      const response = await registerProfessinalAction(payload);
+  
+      if (response) {
         console.log("Registration successful");
       } else {
         console.error("Registration failed");
@@ -94,13 +98,13 @@ const SignupForm = () => {
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
           <SignupFormField
-            name="nombre"
+            name="name"
             label="Nombre"
             placeholder="Tu nombre"
             formControl={form.control}
           />
           <SignupFormField
-            name="apellido"
+            name="lastname"
             label="Apellido"
             placeholder="Tu apellido"
             formControl={form.control}
@@ -120,19 +124,19 @@ const SignupForm = () => {
             formControl={form.control}
           />
           <SignupFormField
-            name="telefono"
+            name="phone_number"
             label="Teléfono"
             placeholder="Teléfono"
             formControl={form.control}
           />
           <SignupFormField
-            name="documento"
+            name="id_card"
             label="Documento"
             placeholder="Documento"
             formControl={form.control}
           />
           <SignupFormField
-            name="nacionalidad"
+            name="type_id_card"
             label="Nacionalidad"
             placeholder="Nacionalidad"
             formControl={form.control}
@@ -147,7 +151,7 @@ const SignupForm = () => {
           </div>
           <FormField
             control={form.control}
-            name="especialidad"
+            name="specialty"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-700">Especialidad</FormLabel>
@@ -205,7 +209,7 @@ const SignupFormField: React.FC<SignupFormFieldProps> = ({
   inputType,
   formControl,
 }) => {
-  if (name === "foto") {
+  if (name === "photo") {
     // Campo personalizado para archivos
     return (
       <FormField

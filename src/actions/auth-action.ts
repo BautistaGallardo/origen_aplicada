@@ -59,13 +59,36 @@ export const registerProfessinalAction = async(values: z.infer<typeof RegisterPr
     try {
         const existingUser = await db.user.findUnique({
             where: { email: values.email },
+            include:{
+                TypeIdCard:true
+            }
         });
 
         if (existingUser) {
-            throw new Error("El usuario ya existe");
+
+            const checkUser = {
+                document:values.id_card,
+                phone:values.phone_number
+            }
+
+            if (existingUser.TypeIdCard?.id_number === checkUser.document && existingUser.phone_number === checkUser.phone){
+                const professinal = await db.professional.create({
+                    data: {
+                        userId: existingUser.id,
+                        photo: values.photo, // opcional
+                        specialty:values.specialty
+        
+                    },
+                });
+
+                return {existingUser,professinal}
+            }
+
         }
 
         const hashedPassword = await hash(values.password, 10);
+
+
 
         // Crea el usuario en la tabla user
         const newUser = await db.user.create({

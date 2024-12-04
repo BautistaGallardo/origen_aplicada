@@ -34,6 +34,8 @@ export const RegisterProfesionalSchema = z.object({
   id_card: z.string({ required_error: "El número de documento es obligatorio" }).min(1, "El número de documento es obligatorio"),
 });
 
+
+
 // Esquema Zod para el login de Profesional
 export const LoginProfesionalSchema = z.object({
   email: z.string({ required_error: "El correo electrónico es obligatorio" }).email("Correo electrónico no válido"),
