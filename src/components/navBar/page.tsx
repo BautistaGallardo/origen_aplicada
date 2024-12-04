@@ -19,8 +19,8 @@ export default function Navbar() {
   const isAuthenticated = status === "authenticated";
 
   return (
-    <nav className="bg-white w-full border-b md:border-0">
-      <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
+    <nav className="bg-white w-full border-b md:border-0 E">
+      <div className="items-center px-4 max-w-screen-xl mx-auto md:flex  " >
         {/* Contenido para usuarios autenticados */}
         {isAuthenticated ? (
           <div className="flex items-center justify-between py-3 md:py-5 w-full">
@@ -28,7 +28,7 @@ export default function Navbar() {
               Hola, {session?.user?.name || "Usuario"}
             </h1>
             <button
-              onClick={() => signOut()}
+              onClick={() => signOut({callbackUrl: "/"})}
               className="px-4 py-2 text-white bg-black rounded-md hover:bg-gray-800"
             >
               Cerrar Sesión

@@ -8,9 +8,9 @@ const LandingPage = () => {
   return (
     <main>
         <div><Intro/></div>
+        <div><AboutUs/></div>
         <div><Professionals/></div>
         <div><Contact/></div>
-        <div><AboutUs/></div>
     </main>
     
   )

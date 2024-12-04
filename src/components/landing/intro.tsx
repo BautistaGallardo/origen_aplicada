@@ -1,4 +1,6 @@
 'use client'
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button"
 
 const Introduccion = () => {
@@ -11,9 +13,11 @@ const Introduccion = () => {
         <p className="text-lg">
           Somos Gisela y Luis, directores de Origen, centro de especialidades médicas, apostamos a un lugar que acompañe desde el compromiso y la responsabilidad.
         </p>
-        <Button className="bg-black text-white hover:bg-gray-800 px-6 py-2 rounded-md">
-          Pedir turno
-        </Button>
+        <Link
+          href="pages/protected/auth/login"
+          className="inline-block px-4 py-2 text-white bg-black rounded-md hover:bg-gray-800">
+          Pedir Turno
+        </Link>
       </div>
     </div>
   )

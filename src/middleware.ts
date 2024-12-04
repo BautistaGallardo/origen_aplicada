@@ -13,16 +13,16 @@ const publicRoutes = [
 ];
 
 const patientRoutes = [
-  '/pages/protected/dashboard/patient',
+  '/pages/protected/Dashboard/patient',
   '/pages/protected/calendar',
 ];
 
 const professionalRoutes = [
-  '/pages/protected/dashboard/professional',
+  '/pages/protected/Dashboard/professional',
 ];
 
 const adminRoutes = [
-  '/pages/protected/dashboard/admin',
+  '/pages/protected/Dashboard/admin',
 ];
 
 const Select_Professional_or_Patient = [
@@ -55,15 +55,15 @@ export default middleware(async (req) => {
       switch (token.role) {
         case "Patient":
           return NextResponse.redirect(
-            new URL("/pages/protected/dashboard/patient", nextUrl)
+            new URL("/pages/protected/Dashboard/patient", nextUrl)
           );
         case "Professional":
           return NextResponse.redirect(
-            new URL("/pages/protected/dashboard/professional", nextUrl)
+            new URL("/pages/protected/Dashboard/professional", nextUrl)
           );
         case "Admin":
           return NextResponse.redirect(
-            new URL("/pages/protected/dashboard/admin", nextUrl)
+            new URL("/pages/protected/Dashboard/admin", nextUrl)
           );
         case "Patient and Professional":
           return NextResponse.redirect(
@@ -83,7 +83,7 @@ export default middleware(async (req) => {
   if (isLoggedIn) {
     if (token.role === "Patient" && !patientRoutes.includes(nextUrl.pathname)) {
       return NextResponse.redirect(
-        new URL("/pages/protected/dashboard/patient", nextUrl)
+        new URL("/pages/protected/Dashboard/patient", nextUrl)
       );
     }
     if (
@@ -91,7 +91,7 @@ export default middleware(async (req) => {
       !professionalRoutes.includes(nextUrl.pathname)
     ) {
       return NextResponse.redirect(
-        new URL("/pages/protected/dashboard/professional", nextUrl)
+        new URL("/pages/protected/Dashboard/professional", nextUrl)
       );
     }
     if (
@@ -99,7 +99,7 @@ export default middleware(async (req) => {
       !adminRoutes.includes(nextUrl.pathname)
     ) {
       return NextResponse.redirect(
-        new URL("/pages/protected/dashboard/admin", nextUrl)
+        new URL("/pages/protected/Dashboard/admin", nextUrl)
       );
     }
     if (
