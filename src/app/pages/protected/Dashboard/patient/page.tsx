@@ -2,10 +2,17 @@
 import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import TurnoModal from "./reservation";
 
 const DashboardPatient = () => {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
+
+  // Estado para controlar el modal
+  const [isTurnoModalOpen, setIsTurnoModalOpen] = useState(false);
+
+  const openTurnoModal = () => setIsTurnoModalOpen(true);
+  const closeTurnoModal = () => setIsTurnoModalOpen(false);
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -33,15 +40,13 @@ const DashboardPatient = () => {
         <nav>
           <ul>
             <li>
-              <a
-                href="#"
-                className="block py-2 px-4 bg-white-300 rounded hover:bg-gray-400"
+              <button
+                onClick={openTurnoModal}
+                className="block w-full py-2 px-4 bg-white-300 text-left rounded hover:bg-gray-400"
               >
                 Reservar un Turno
-              </a>
+              </button>
             </li>
-          </ul>
-          <ul>
             <li>
               <a
                 href="#"
@@ -53,6 +58,11 @@ const DashboardPatient = () => {
           </ul>
         </nav>
       </aside>
+
+      {/* Modal de Turno */}
+      {isTurnoModalOpen && (
+        <TurnoModal isOpen={isTurnoModalOpen} onClose={closeTurnoModal} />
+      )}
     </div>
   );
 };
