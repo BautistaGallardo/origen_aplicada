@@ -158,6 +158,8 @@ model Appointment {
   Observations     Observation[]
   TypeConsultations TypeConsultation[]
   Reservations     Reservation[]
+
+
 }
 
 model Reservation {
