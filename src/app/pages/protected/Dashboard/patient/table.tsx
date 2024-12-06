@@ -146,7 +146,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
         };
 
         fetchReservaciones();
-    }, [refreshKey]);
+    }, [session?.user?.email,refreshKey]);
 
     if (loading) {
         return <div className="text-center">Cargando...</div>;

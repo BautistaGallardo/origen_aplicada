@@ -54,6 +54,8 @@ export async function POST(req: Request) {
       }
     )
 
+    console.log("turno cambiado a pendiente: "+(await updateState).state)
+
     // Verificar que el usuario exista
     const user = await db.user.findUnique({
       where: { email },
