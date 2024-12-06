@@ -4,7 +4,7 @@ import { db } from "@/libs/db";
 // Define el tipo para los turnos
 type Turno = {
   date: string;
-  hours: string[];
+  hours: { hour: string, id: string }[]; // Cada hora ahora incluye el id
 };
 
 // Define el tipo para las especialidades, profesionales y turnos
@@ -37,6 +37,7 @@ export async function GET() {
             state: "disponible", // Filtrar solo turnos disponibles
           },
           select: {
+            id: true,
             date: true,
             hour: true,
           },
@@ -44,51 +45,50 @@ export async function GET() {
       },
     });
 
-    // Transformar los datos con tipo explícito para el acumulador
-    const especialidades: Especialidad[] = profesionales.reduce((acc: Especialidad[], prof) => {
-      const { specialty, User, Appointments } = prof;
+    // Utilizamos un Map para mejorar la eficiencia en la búsqueda de especialidades
+    const especialidadesMap = new Map<string, Especialidad>();
 
+    profesionales.forEach((prof) => {
+      const { specialty, User, Appointments } = prof;
+      
       // Validar que el usuario asociado al profesional existe
       if (!User) {
         console.warn(`Profesional sin usuario asociado: ${prof.id}`);
-        return acc; // Saltar si no hay usuario
+        return; // Saltar si no hay usuario
       }
 
       // Agrupar los turnos disponibles por fecha
       const availableTurns = Appointments.reduce((turnAcc: Turno[], appointment) => {
         const dateStr = new Date(appointment.date).toISOString().split("T")[0]; // Formato yyyy-MM-dd
         const existingTurn = turnAcc.find((turn) => turn.date === dateStr);
-      
+
         if (existingTurn) {
-          // Evitar duplicados en la lista de horarios
-          if (!existingTurn.hours.includes(appointment.hour)) {
-            existingTurn.hours.push(appointment.hour);
+          // Evitar duplicados en la lista de horarios, agregamos el id junto con la hora
+          if (!existingTurn.hours.some(hour => hour.hour === appointment.hour)) {
+            existingTurn.hours.push({ hour: appointment.hour, id: appointment.id });
           }
         } else {
           turnAcc.push({
             date: dateStr,
-            hours: [appointment.hour],
+            hours: [{ hour: appointment.hour, id: appointment.id }],
           });
         }
-      
+
         return turnAcc;
       }, []);
 
-      // Buscar si la especialidad ya existe en el acumulador
-      const especialidadExistente = acc.find((esp) => esp.specialty === specialty);
-
-      if (especialidadExistente) {
-        // Si la especialidad ya existe, agregar el profesional a la lista
-        especialidadExistente.professionals.push({
+      // Si la especialidad ya existe, agregamos el profesional
+      if (especialidadesMap.has(specialty)) {
+        especialidadesMap.get(specialty)?.professionals.push({
           id: User.id,
           name: User.name,
           email: User.email,
           availableTurns,
         });
       } else {
-        // Si no existe, crear una nueva entrada para la especialidad
-        acc.push({
-          specialty: specialty,
+        // Si no existe, creamos una nueva entrada
+        especialidadesMap.set(specialty, {
+          specialty,
           professionals: [
             {
               id: User.id,
@@ -99,18 +99,18 @@ export async function GET() {
           ],
         });
       }
+    });
 
-      return acc;
-    }, []); // Tipo inicializado como array vacío de `Especialidad[]`
+    // Convertir el Map a un array
+    const especialidades = Array.from(especialidadesMap.values());
 
     // Responder con las especialidades agrupadas y turnos
     return NextResponse.json(especialidades);
   } catch (error) {
     console.error("Error al obtener profesionales:", error);
     return NextResponse.json(
-      { error: "Error al obtener profesionales y turnos" },
+      { error: `Error al obtener profesionales y turnos: ${error}` },
       { status: 500 }
     );
   }
 }
-

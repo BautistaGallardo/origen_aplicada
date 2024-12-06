@@ -4,13 +4,31 @@ import { db } from "@/libs/db";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { appointment_id, patient_id, date, state } = body;
+    const { appointment_id, email, date, state } = body;
 
     // Validar que todos los datos estén presentes
-    if (!appointment_id || !patient_id || !date || !state) {
-      console.error("Datos faltantes:", { appointment_id, patient_id, date, state });
+    if (!appointment_id || !email || !date || !state) {
+      console.error("Datos faltantes:", { appointment_id, email, date, state });
       return NextResponse.json(
         { error: "Faltan datos requeridos para crear la reserva." },
+        { status: 400 }
+      );
+    }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "El formato del correo electrónico no es válido." },
+        { status: 400 }
+      );
+    }
+
+    // Validar que la fecha sea válida
+    const appointmentDate = new Date(date);
+    if (isNaN(appointmentDate.getTime())) {
+      return NextResponse.json(
+        { error: "El formato de la fecha no es válido." },
         { status: 400 }
       );
     }
@@ -23,19 +41,31 @@ export async function POST(req: Request) {
     if (!appointment) {
       return NextResponse.json(
         { error: "El turno especificado no existe." },
-        { status: 400 }
+        { status: 404 }
       );
     }
 
-    // Verificar que el paciente (patient_id) exista
+    // Verificar que el usuario exista
+    const user = await db.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "El usuario especificado no existe." },
+        { status: 404 }
+      );
+    }
+
+    // Verificar que el paciente exista
     const patient = await db.patients.findUnique({
-      where: { id: patient_id },
+      where: { userId: user.id },
     });
 
     if (!patient) {
       return NextResponse.json(
         { error: "El paciente especificado no existe." },
-        { status: 400 }
+        { status: 404 }
       );
     }
 
@@ -43,8 +73,8 @@ export async function POST(req: Request) {
     const newReservation = await db.reservation.create({
       data: {
         appointment_id,
-        patient_id,
-        date: new Date(date),
+        patient_id: patient.id,
+        date: appointmentDate,
         state,
       },
     });
@@ -59,5 +89,3 @@ export async function POST(req: Request) {
     );
   }
 }
-
-  

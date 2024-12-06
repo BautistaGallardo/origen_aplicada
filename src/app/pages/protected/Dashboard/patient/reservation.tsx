@@ -17,6 +17,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { useSession } from "next-auth/react";
 import { format, startOfDay, isBefore } from "date-fns";
+import { Value } from "@radix-ui/react-select";
 
 type Profesional = {
   id: string;
@@ -27,8 +28,13 @@ type Profesional = {
 
 type Turno = {
   date: string;
-  hours: string[];
+  hours: Hora[];
 };
+
+type Hora={
+  id: string,
+  hour: string
+}
 
 type Especialidad = {
   specialty: string;
@@ -41,10 +47,10 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
   const [filteredProfessionals, setFilteredProfessionals] = useState<Profesional[]>([]);
   const [selectedProfessional, setSelectedProfessional] = useState<Profesional | undefined>();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [availableHours, setAvailableHours] = useState<string[]>([]);
-  const [selectedHour, setSelectedHour] = useState<string | undefined>();
+  const [availableHours, setAvailableHours] = useState<Hora[]>([]);
+  const [selectedHour, setSelectedHour] = useState<Hora | undefined>();
   const session = useSession();
-  const patient_id = session?.data?.user.name;
+  const email = session?.data?.user.email;
   // Fetch especialidades y profesionales con turnos disponibles
   useEffect(() => {
     const fetchEspecialidades = async () => {
@@ -81,7 +87,14 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
         (turn) => turn.date === dateStr
       );
 
-      setAvailableHours(availableTurns?.hours || []);
+      console.log(availableTurns?.hours)
+      //setAvailableHours(availableTurns?.hours || []);
+      console.log(availableHours)
+      setAvailableHours([
+        { id: "cm4bwf4gj000lj34e030ac3nw", hour: "08:00" },
+        {hour: '9:0', id: 'cm4bwf4gj000rj34eczwpubwm'},
+
+      ]);
       setSelectedHour(undefined); // Reiniciar la hora seleccionada
     } else {
       setAvailableHours([]);
@@ -91,7 +104,8 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
   const handleConfirmar = async () => {
     if (selectedProfessional && selectedDate && selectedHour) {
       // Dividir la hora en horas y minutos
-      const [hour, minute] = selectedHour.split(":");
+      const id = selectedHour.id
+      const [hour, minute] = selectedHour.hour.split(":");
       const formattedHour = hour.padStart(2, "0"); // Asegurar dos dígitos para la hora
       const formattedMinute = minute.padStart(2, "0"); // Asegurar dos dígitos para los minutos
   
@@ -99,8 +113,8 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
       const dateTime = `${dateStr}T${formattedHour}:${formattedMinute}:00`; // Formato ISO 8601
   
       const payload = {
-        appointment_id: selectedProfessional.id,
-        patient_id, // Cambiar por el ID real del paciente logueado
+        appointment_id: id,
+        email, // Cambiar por el ID real del paciente logueado
         date: dateTime, // Fecha y hora combinadas
         state: "pendiente", // Estado inicial
       };
@@ -206,12 +220,12 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
               {availableHours.length > 0 ? (
                 availableHours.map((hour) => (
                   <Button
-                    key={hour}
+                    key={hour.id}
                     variant="outline"
                     className={hour === selectedHour ? "bg-blue-500 text-white" : ""}
                     onClick={() => setSelectedHour(hour)}
                   >
-                    {hour}
+                    {hour.hour}
                   </Button>
                 ))
               ) : (
@@ -235,4 +249,3 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 };
 
 export default TurnoModal;
-
