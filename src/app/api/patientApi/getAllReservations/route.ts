@@ -25,8 +25,23 @@ export async function GET(req: NextRequest) {
                 Appointment:{
                     select:{
                         date:true
+                    },
+                    include:{
+                        Professional:{
+                            select:{
+                                specialty: true
+                            },
+                            include:{
+                                User:{
+                                    select:{
+                                        name:true,
+                                        lastName:true
+                                    }
+                                }
+                            }
+                        }
                     }
-                }  
+                },  
             },
             orderBy: {
                 date: "desc",
