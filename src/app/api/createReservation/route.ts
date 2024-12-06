@@ -45,6 +45,15 @@ export async function POST(req: Request) {
       );
     }
 
+    const updateState = db.appointment.update(
+      {
+        where:{id:appointment.id},
+        data:{
+          state:"pendiente"
+        }
+      }
+    )
+
     // Verificar que el usuario exista
     const user = await db.user.findUnique({
       where: { email },

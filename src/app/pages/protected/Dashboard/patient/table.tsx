@@ -9,9 +9,15 @@ import {
     TableCell,
 } from "@/components/ui/table";
 
+type ID={
+    patient_id: string, 
+    appointment_id:string
+}
+
 interface Reservacion {
-    id: string;
-    state:string
+    patient_id:string
+    appointment_id:string
+    state: string;
     Appointment: {
         date: string;
         Professional: {
@@ -24,12 +30,84 @@ interface Reservacion {
     };
 }
 
-const TurnoTable = ({refreshKey}: {refreshKey:number}) => {
+const Modal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: () => void }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+                <h2 className="text-lg font-semibold">¿Está seguro?</h2>
+                <p className="mt-4">¿Desea cancelar este turno?</p>
+                <div className="mt-6 flex justify-end space-x-4">
+                    <button
+                        onClick={onClose}
+                        className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                    >
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     const [reservaciones, setReservaciones] = useState<Reservacion[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { data: session } = useSession();
 
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedReservacionId, setSelectedReservacionId] = useState<ID | null>(null);
+
+    const cancelarTurno = async (id:ID) => {
+        try {
+            // Actualiza localmente el estado a "cancelado" para la tabla del administrador
+            setReservaciones((prev) =>
+                prev.map((reservacion) =>
+                    (reservacion.appointment_id === id.appointment_id && reservacion.patient_id === id.patient_id)
+                        ? { ...reservacion, state: "cancelado" }
+                        : reservacion
+                )
+            );
+    
+            // Realiza la petición al backend
+            const response = await fetch(`http://localhost:3000/api/cancelReservation`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error al cancelar el turno");
+            }
+    
+            console.log("Turno cancelado exitosamente en el backend.");
+            setModalOpen(false);
+        } catch (err: any) {
+            console.error("Error al cancelar el turno:", err);
+    
+            // Si hay error, vuelve a marcar el turno como pendiente localmente
+            setReservaciones((prev) =>
+                prev.map((reservacion) =>
+                    (reservacion.appointment_id === id.appointment_id && reservacion.patient_id === id.patient_id) 
+                        ? { ...reservacion, state: "pendiente" }
+                        : reservacion
+                )
+            );
+    
+            setError(err.message || "Error desconocido");
+        }
+    };
     useEffect(() => {
         const fetchReservaciones = async () => {
             if (!session?.user?.email) {
@@ -37,31 +115,28 @@ const TurnoTable = ({refreshKey}: {refreshKey:number}) => {
                 setLoading(false);
                 return;
             }
-            
+
             try {
                 const email = session.user.email;
-                console.log(email)
 
-                const response = await fetch(`http://localhost:3000/api/getAllReservations?email=${email}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
+                const response = await fetch(
+                    `http://localhost:3000/api/getAllReservations?email=${email}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
                     }
-                  }); 
-                console.log("Respuesta de la API:", response);
+                );
 
-                // Si la respuesta no es exitosa, lanza un error con el mensaje adecuado
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || "Error al cargar los datos");
                 }
 
                 const data = await response.json();
-                console.log(data)
-                console.log("Datos recibidos de la API:", data);
-
                 setReservaciones(data);
-                setError(null); // Limpiamos el error si la solicitud tiene éxito
+                setError(null);
             } catch (err: any) {
                 console.error("Error al cargar reservaciones:", err);
                 setError(err.message || "Error desconocido");
@@ -80,36 +155,65 @@ const TurnoTable = ({refreshKey}: {refreshKey:number}) => {
     if (error) {
         return <div className="text-center text-red-500">Error: {error}</div>;
     }
+    const turnoPendiente = reservaciones.some((reservacion) => reservacion.state === "pendiente");
 
     return (
-        <Table className="w-full">
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Profesional</TableHead>
-                    <TableHead>Especialidad</TableHead>
-                    <TableHead>Estado</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {reservaciones.length > 0 ? (
-                    reservaciones.map((reservacion) => (
-                        <TableRow key={reservacion.id}>
-                            <TableCell>{reservacion.Appointment.date}</TableCell>
-                            <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
-                            <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
-                            <TableCell>{reservacion.state}</TableCell>
-                        </TableRow>
-                    ))
-                ) : (
+        <>
+            <Table className="w-full">
+                <TableHeader>
                     <TableRow>
-                        <TableCell colSpan={3} className="text-center">
-                            No hay reservaciones disponibles
-                        </TableCell>
+                        <TableHead>Fecha</TableHead>
+                        <TableHead>Profesional</TableHead>
+                        <TableHead>Especialidad</TableHead>
+                        <TableHead>Estado</TableHead>
+                        {turnoPendiente && <TableHead>Cancelar Turno</TableHead>}
                     </TableRow>
-                )}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {reservaciones.length > 0 ? (
+                        reservaciones.map((reservacion) => (
+                            <TableRow key={reservacion.appointment_id}>
+                                <TableCell>{reservacion.Appointment.date}</TableCell>
+                                <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
+                                <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
+                                <TableCell>{reservacion.state}</TableCell>
+                                <TableCell>
+                                    {reservacion.state === "pendiente" ? (
+                                        <button
+                                            onClick={() => {
+                                                setSelectedReservacionId({patient_id:reservacion.patient_id,appointment_id:reservacion.appointment_id});
+                                                setModalOpen(true);
+                                            }}
+                                            className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                                        >
+                                            Cancelar
+                                        </button>
+                                    ) : (
+                                        <span className="text-gray-400">No disponible</span>
+                                    )}
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={5} className="text-center">
+                                No hay reservaciones disponibles
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+
+            <Modal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={() => {
+                    if (selectedReservacionId) {
+                        cancelarTurno(selectedReservacionId);
+                    }
+                }}
+            />
+        </>
     );
 };
 

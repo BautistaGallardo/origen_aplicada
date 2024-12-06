@@ -54,4 +54,4 @@ const DashboardProfessional = () => {
   );
 };
 
-export default WorkScheduleModal;
+export default DashboardProfessional;
