@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Email not found" }, { status: 400 });
         }
         
-        const user = await db.user.findFirst({
+        const user = await db.user.findUnique({
             where: { email: data },
         });
 
@@ -20,6 +20,13 @@ export async function GET(req: NextRequest) {
         const reservation = await db.reservation.findMany({
             where: {
                 patient_id: user.id,
+            },
+            include:{
+                Appointment:{
+                    select:{
+                        date:true
+                    }
+                }  
             },
             orderBy: {
                 date: "desc",
