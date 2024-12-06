@@ -41,7 +41,7 @@ type Especialidad = {
   professionals: Profesional[];
 };
 
-const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onClose: () => void ; onTurnoCreated: () => void}) => {
   const [especialidades, setEspecialidades] = useState<Especialidad[]>([]);
   const [selectedEspecialidad, setSelectedEspecialidad] = useState<string | undefined>();
   const [filteredProfessionals, setFilteredProfessionals] = useState<Profesional[]>([]);
@@ -136,6 +136,7 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
         if (response.ok) {
           console.log("Reserva creada exitosamente:", data);
           alert("Reserva creada con éxito");
+          onTurnoCreated()
           onClose(); // Cerrar el modal
         } else {
           console.error("Error al crear la reserva:", data.error);

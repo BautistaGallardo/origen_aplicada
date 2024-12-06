@@ -1,24 +1,33 @@
 "use client";
 import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { Button } from "@/components/ui/button";
+import TurnoTable from "./table";
 import TurnoModal from "./reservation";
 
 const DashboardPatient = () => {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
 
-  // Estado para controlar el modal
   const [isTurnoModalOpen, setIsTurnoModalOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<"dashboard" | "historial">(
+    "dashboard"
+  );
+
+  // Estado para refrescar la tabla
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const openTurnoModal = () => setIsTurnoModalOpen(true);
   const closeTurnoModal = () => setIsTurnoModalOpen(false);
+
+  // Callback para manejar el refresco de la tabla
+  const handleTurnoCreated = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   return (
     <div className="min-h-screen bg-white text-black">
       {/* Header con borde negro */}
       <div className="items-center max-w-screen-xl mx-auto md:flex border-b border-black">
-        {/* Contenido para usuarios autenticados */}
         {isAuthenticated ? (
           <div className="flex items-center justify-between py-3 md:py-5 w-full">
             <h1 className="text-2xl font-semibold text-gray-800">
@@ -48,20 +57,43 @@ const DashboardPatient = () => {
               </button>
             </li>
             <li>
-              <a
-                href="#"
-                className="block py-2 px-4 bg-white-300 rounded hover:bg-gray-400"
+              <button
+                onClick={() => setCurrentView("historial")}
+                className="block w-full py-2 px-4 bg-white-300 text-left rounded hover:bg-gray-400"
               >
                 Historial de Turnos
-              </a>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setCurrentView("dashboard")}
+                className="block w-full py-2 px-4 bg-white-300 text-left rounded hover:bg-gray-400"
+              >
+                Volver al Dashboard
+              </button>
             </li>
           </ul>
         </nav>
       </aside>
 
+      {/* Contenido principal */}
+      <main className="ml-64 p-4">
+        {currentView === "dashboard" && (
+          <div>
+            <h2 className="text-xl font-bold">Bienvenido al Portal de Paciente</h2>
+            <p>Aquí puedes gestionar tus turnos y revisar tu información.</p>
+          </div>
+        )}
+        {currentView === "historial" && <TurnoTable refreshKey={refreshKey} />}
+      </main>
+
       {/* Modal de Turno */}
       {isTurnoModalOpen && (
-        <TurnoModal isOpen={isTurnoModalOpen} onClose={closeTurnoModal} />
+        <TurnoModal
+          isOpen={isTurnoModalOpen}
+          onClose={closeTurnoModal}
+          onTurnoCreated={handleTurnoCreated} // Pasamos el callback
+        />
       )}
     </div>
   );
