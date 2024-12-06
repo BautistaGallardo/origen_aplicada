@@ -53,7 +53,6 @@ export default {
                     ...user,
                     role,
                   };
-                console.log('User with role:', userWithRole); // Verifica si el rol está en el objeto
                 return userWithRole;
             },
         }),
