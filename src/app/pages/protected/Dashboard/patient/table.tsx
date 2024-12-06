@@ -19,6 +19,7 @@ interface Reservacion {
     appointment_id:string
     state: string;
     Appointment: {
+        hour: string;
         date: string;
         Professional: {
             specialty: string;
@@ -135,6 +136,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                 }
 
                 const data = await response.json();
+                console.log(data);
                 setReservaciones(data);
                 setError(null);
             } catch (err: any) {
@@ -163,6 +165,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                 <TableHeader>
                     <TableRow>
                         <TableHead>Fecha</TableHead>
+                        <TableHead>Hora</TableHead>
                         <TableHead>Profesional</TableHead>
                         <TableHead>Especialidad</TableHead>
                         <TableHead>Estado</TableHead>
@@ -174,6 +177,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                         reservaciones.map((reservacion) => (
                             <TableRow key={reservacion.appointment_id}>
                                 <TableCell>{reservacion.Appointment.date}</TableCell>
+                                <TableCell>{reservacion.Appointment.hour}</TableCell>
                                 <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
                                 <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
                                 <TableCell>{reservacion.state}</TableCell>
