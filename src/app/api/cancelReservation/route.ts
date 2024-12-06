@@ -39,7 +39,7 @@ export async function PUT(req: Request) {
     // Marcar el turno asociado como "Disponible"
     await db.appointment.update({
       where: { id: reservation.appointment_id },
-      data: { state: "Disponible" },
+      data: { state: "disponible" },
     });
 
     return NextResponse.json(
