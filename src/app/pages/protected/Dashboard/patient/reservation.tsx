@@ -88,13 +88,14 @@ const TurnoModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
       );
 
       console.log(availableTurns?.hours)
-      //setAvailableHours(availableTurns?.hours || []);
+      const hours = availableTurns?.hours || [];
+      setAvailableHours(hours);
       console.log(availableHours)
-      setAvailableHours([
-        { id: "cm4bwf4gj000lj34e030ac3nw", hour: "08:00" },
-        {hour: '9:0', id: 'cm4bwf4gj000rj34eczwpubwm'},
+      // setAvailableHours([
+      //   { id: "cm4bwf4gj000lj34e030ac3nw", hour: "08:00" },
+      //   {hour: '9:0', id: 'cm4bwf4gj000rj34eczwpubwm'},
 
-      ]);
+      // ]);
       setSelectedHour(undefined); // Reiniciar la hora seleccionada
     } else {
       setAvailableHours([]);
