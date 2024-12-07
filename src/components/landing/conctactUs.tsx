@@ -1,9 +1,10 @@
-'use client'
-import { useState } from 'react'
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
+'use client';
+import { useState } from 'react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { ContactEmail } from '@/libs/zod';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +15,7 @@ const Contact = () => {
   });
   const [status, setStatus] = useState('');
 
-  const handleChange = (e: { target: { id: any; value: any } }) => {
+  const handleChange = (e: { target: { id: string; value: string } }) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
@@ -22,6 +23,9 @@ const Contact = () => {
     e.preventDefault();
     setStatus('Enviando...');
     try {
+      // Validación con Zod
+      ContactEmail.parse(formData);
+
       const response = await fetch('/api/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,12 +34,13 @@ const Contact = () => {
 
       if (response.ok) {
         setStatus('¡Mensaje enviado correctamente!');
+        setFormData({ firstName: '', lastName: '', email: '', message: '' });
       } else {
         setStatus('Error al enviar el mensaje.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      setStatus('Error al enviar el mensaje.');
+      setStatus(error.message || 'Error al enviar el mensaje.');
     }
   };
 
@@ -43,8 +48,8 @@ const Contact = () => {
     <div className="bg-black text-white min-h-screen flex items-center justify-center">
       <div className="mx-auto max-w-md space-y-8 p-4">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Contactanos</h1>
-          <p className="text-white-300">
+          <h1 className="text-3xl font-bold">Contáctanos</h1>
+          <p className="text-gray-300">
             Todos los mensajes importan, esperamos el de usted.
           </p>
         </div>
@@ -55,7 +60,7 @@ const Contact = () => {
               <Input
                 id="firstName"
                 placeholder="Ingresa tu nombre"
-                className="bg-black text-white border border-gray-600"
+                className="bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
                 value={formData.firstName}
                 onChange={handleChange}
               />
@@ -65,7 +70,7 @@ const Contact = () => {
               <Input
                 id="lastName"
                 placeholder="Ingresa tu apellido"
-                className="bg-black text-white border border-gray-600"
+                className="bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
                 value={formData.lastName}
                 onChange={handleChange}
               />
@@ -77,7 +82,7 @@ const Contact = () => {
               id="email"
               type="email"
               placeholder="Ingresa tu correo"
-              className="bg-black text-white border border-gray-600"
+              className="bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
               value={formData.email}
               onChange={handleChange}
             />
@@ -87,16 +92,28 @@ const Contact = () => {
             <Textarea
               id="message"
               placeholder="Ingresa tu mensaje"
-              className="min-h-[120px] bg-black text-white border border-gray-600"
+              className="min-h-[120px] bg-black text-white border border-gray-600 focus:ring focus:ring-blue-500"
               value={formData.message}
               onChange={handleChange}
             />
           </div>
-          <Button type="submit" className="bg-white text-black hover:bg-gray-300">
-            Enviar
+          <Button
+            type="submit"
+            className="bg-white text-black hover:bg-gray-300"
+            disabled={status === 'Enviando...'}
+          >
+            {status === 'Enviando...' ? 'Enviando...' : 'Enviar'}
           </Button>
         </form>
-        {status && <p className="text-center mt-4">{status}</p>}
+        {status && (
+          <p
+            className={`text-center mt-4 ${
+              status.includes('¡Mensaje enviado') ? 'text-green-500' : 'text-red-500'
+            }`}
+          >
+            {status}
+          </p>
+        )}
       </div>
     </div>
   );
