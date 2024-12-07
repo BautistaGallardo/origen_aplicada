@@ -63,7 +63,9 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { data: session } = useSession();
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPage = 10;
+    const totalPages = Math.ceil(reservaciones.length / itemsPage);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedReservacionId, setSelectedReservacionId] = useState<ID | null>(null);
 
@@ -159,7 +161,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
         return <div className="text-center text-red-500">Error: {error}</div>;
     }
     const turnoPendiente = reservaciones.some((reservacion) => reservacion.state === "pendiente");
-
+    const currentData = reservaciones.slice ((currentPage-1) * itemsPage, currentPage * itemsPage);
     return (
         <>
             <Table className="w-full">
@@ -174,10 +176,10 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {reservaciones.length > 0 ? (
-                        reservaciones.map((reservacion) => (
+                    {currentData.length > 0 ? (
+                        currentData.map((reservacion) => (
                             <TableRow key={reservacion.appointment_id}>
-                                <TableCell>{reservacion.Appointment.date}</TableCell>
+                                <TableCell>{new Date(reservacion.Appointment.date).toLocaleDateString()}</TableCell>
                                 <TableCell>{reservacion.Appointment.hour}</TableCell>
                                 <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
                                 <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
@@ -208,7 +210,24 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                     )}
                 </TableBody>
             </Table>
-
+                     {/* Controles de paginación */}
+            <div className="flex justify-center mt-4">
+                <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    className="px-4 py-2 bg-gray-300 rounded mr-2"
+                    disabled={currentPage === 1}
+                >
+                    Anterior
+                </button>
+                <span className="px-4 py-2">{`Página ${currentPage} de ${totalPages}`}</span>
+                <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    className="px-4 py-2 bg-gray-300 rounded ml-2"
+                    disabled={currentPage === totalPages}
+                >
+                    Siguiente
+                </button>
+            </div>
             <Modal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}

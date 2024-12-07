@@ -33,6 +33,10 @@ const TurnoTable = ({ refreshKey, onTurnoCreated}: { refreshKey: number, onTurno
   const [selectedTurno, setSelectedTurno] = useState<Turnos | null>(null);
   const [modalType, setModalType] = useState<"confirm" | "cancel" | null>(null);
   const { data: session } = useSession();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPage = 10;
+
+  const totalPages = Math.ceil (turnos.length / itemsPage);
 
   useEffect(() => {
     const fetchTurnos = async () => {
@@ -144,6 +148,7 @@ const TurnoTable = ({ refreshKey, onTurnoCreated}: { refreshKey: number, onTurno
     return <div className="text-center text-red-500">Error: {error}</div>;
   }
 
+  const currentData = turnos.slice((currentPage-1) * itemsPage, currentPage*itemsPage);
   return (
     <div>
       <Table className="w-full">
@@ -158,7 +163,7 @@ const TurnoTable = ({ refreshKey, onTurnoCreated}: { refreshKey: number, onTurno
           </TableRow>
         </TableHeader>
         <TableBody>
-          {turnos.map((turno, index) => (
+          {currentData.map((turno, index) => (
             <TableRow key={index}>
               <TableCell>{new Date(turno.date).toLocaleDateString()}</TableCell>
               <TableCell>{turno.hour}</TableCell>
@@ -183,6 +188,26 @@ const TurnoTable = ({ refreshKey, onTurnoCreated}: { refreshKey: number, onTurno
           ))}
         </TableBody>
       </Table>
+          {/* Controles de Paginación */}
+      <div className="flex justify-center mt-4">
+        <button
+          className="px-4 py-2 bg-gray-300 rounded-md"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Anterior
+        </button>
+        <span className="px-4 py-2">
+          Página {currentPage} de {totalPages}
+        </span>
+        <button
+          className="px-4 py-2 bg-gray-300 rounded-md"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Siguiente
+        </button>
+      </div>
 
       {/* Modal */}
       {modalType && selectedTurno && (

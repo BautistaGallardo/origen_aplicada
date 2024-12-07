@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { Button } from "@/components/ui/button";
 import WorkScheduleModal from "./laboral"; // Ajusta la ruta según la ubicación del archivo
 import TurnoTable from "./table"; // Ajusta la ruta si es necesario
 
@@ -25,18 +24,28 @@ const DashboardProfessional = () => {
         <div className="p-6 border-b border-gray-200">
           {isAuthenticated && (
             <div className="space-y-4">
-              {/* Saludo */}
+            {/* Saludo */}
+            <div className="flex items-center space-x-4">
+              {session?.user?.image && (
+                <img
+                  src={session.user.image}
+                  alt="Foto de perfil"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              )}
               <h1 className="text-2xl font-bold text-gray-800">
                 Hola, {session?.user?.name || "Usuario"}
               </h1>
-              {/* Botón cerrar sesión */}
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
-              >
-                Cerrar Sesión
-              </button>
             </div>
+
+            {/* Botón cerrar sesión */}
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="w-full px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
+            >
+              Cerrar Sesión
+            </button>
+          </div>
           )}
         </div>
         <nav className="p-6 space-y-4">
