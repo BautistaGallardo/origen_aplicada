@@ -21,10 +21,7 @@ const Contact = () => {
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setStatus('Enviando...');
-    try {
-      // Validación con Zod
-      ContactEmail.parse(formData);
-
+    try {;
       const response = await fetch('/api/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
