@@ -5,43 +5,43 @@ import { Button } from "@/components/ui/button";
 import WorkScheduleModal from "./laboral"; // Ajusta la ruta según la ubicación del archivo
 import TurnoTable from "./table"; // Ajusta la ruta si es necesario
 
+
+
 const DashboardProfessional = () => {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
   const [view, setView] = useState<"default" | "historial">("default");
-
   return (
-    <div className="min-h-screen bg-white text-black">
-      {/* Header con borde negro */}
-      <div className="items-center max-w-screen-xl mx-auto md:flex border-b border-black">
-        {/* Contenido para usuarios autenticados */}
-        {isAuthenticated ? (
-          <div className="flex items-center justify-between py-3 md:py-5 w-full">
-            <h1 className="text-2xl font-semibold text-gray-800">
-              Hola, {session?.user?.name || "Usuario"}
-            </h1>
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="px-4 py-2 text-white bg-black rounded-md hover:bg-gray-800"
-            >
-              Cerrar Sesión
-            </button>
-          </div>
-        ) : null}
-      </div>
-
+    <div className="min-h-screen flex bg-gray-100 text-gray-900">
       {/* Sidebar */}
-      <aside className="w-64 bg-white-100 p-4 h-screen fixed border-r border-black">
-        <h2 className="text-lg font-bold mb-4">Portal del Profesional</h2>
-        <nav>
-          <ul>
+      <aside className="bg-white shadow-lg w-64 fixed h-full">
+        <div className="p-6 border-b border-gray-200">
+          {isAuthenticated && (
+            <div className="space-y-4">
+              {/* Saludo */}
+              <h1 className="text-2xl font-bold text-gray-800">
+                Hola, {session?.user?.name || "Usuario"}
+              </h1>
+              {/* Botón cerrar sesión */}
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="w-full px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          )}
+        </div>
+        <nav className="p-6 space-y-4">
+          {/* Opciones del menú */}
+          <ul className="space-y-4">
             <li>
               <WorkScheduleModal />
             </li>
             <li>
               <button
                 onClick={() => setView("historial")}
-                className="block py-2 px-4 bg-white-300 rounded hover:bg-gray-400 w-full text-left"
+                className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
               >
                 Historial de Pacientes
               </button>
@@ -51,17 +51,19 @@ const DashboardProfessional = () => {
       </aside>
 
       {/* Contenido principal */}
-      <main className="ml-64 p-4">
+      <main className="flex-1 ml-64 p-6">
+        {/* Vista por defecto */}
         {view === "default" && (
-          <div>
-            {/* Vista por defecto */}
-            <h2 className="text-xl font-bold">Bienvenido al Dashboard</h2>
-            <p>Selecciona una opción del menú lateral.</p>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Bienvenido al Dashboard</h2>
+            <p className="text-gray-700">Selecciona una opción del menú lateral.</p>
           </div>
         )}
+
+        {/* Historial de pacientes */}
         {view === "historial" && (
-          <div>
-            <h2 className="text-xl font-bold mb-4">Historial de Pacientes</h2>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">Historial de Pacientes</h2>
             <TurnoTable />
           </div>
         )}
