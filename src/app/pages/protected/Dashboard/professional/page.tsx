@@ -10,6 +10,13 @@ const DashboardProfessional = () => {
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
   const [view, setView] = useState<"default" | "historial">("default");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+    // Callback para manejar el refresco de la tabla
+    const handleTurnoCreated = () => {
+      setRefreshKey((prev) => prev + 1);
+    };
+
   return (
     <div className="min-h-screen flex bg-gray-100 text-gray-900">
       {/* Sidebar */}
@@ -73,7 +80,7 @@ const DashboardProfessional = () => {
         {view === "historial" && (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">Historial de Pacientes</h2>
-            <TurnoTable />
+            <TurnoTable refreshKey={refreshKey} onTurnoCreated={handleTurnoCreated}/>
           </div>
         )}
       </main>

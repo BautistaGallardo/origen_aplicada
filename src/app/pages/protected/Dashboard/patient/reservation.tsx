@@ -136,7 +136,6 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
   
         if (response.ok) {
           console.log("Reserva creada exitosamente:", data);
-          alert("Reserva creada con éxito");
           onTurnoCreated()
           onClose(); // Cerrar el modal
         } else {

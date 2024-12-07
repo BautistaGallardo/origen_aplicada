@@ -9,14 +9,14 @@ import {
     TableCell,
 } from "@/components/ui/table";
 
-type ID={
-    patient_id: string, 
-    appointment_id:string
-}
+type ID = {
+    patient_id: string;
+    appointment_id: string;
+};
 
 interface Reservacion {
-    patient_id:string
-    appointment_id:string
+    patient_id: string;
+    appointment_id: string;
     state: string;
     Appointment: {
         hour: string;
@@ -69,7 +69,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedReservacionId, setSelectedReservacionId] = useState<ID | null>(null);
 
-    const cancelarTurno = async (id:ID) => {
+    const cancelarTurno = async (id: ID) => {
         try {
             // Actualiza localmente el estado a "cancelado" para la tabla del administrador
             setReservaciones((prev) =>
@@ -79,7 +79,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                         : reservacion
                 )
             );
-    
+
             // Realiza la petición al backend
             const response = await fetch(`http://localhost:3000/api/cancelReservation`, {
                 method: "PUT",
@@ -88,29 +88,30 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                 },
                 body: JSON.stringify({ id }),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Error al cancelar el turno");
             }
-    
+
             console.log("Turno cancelado exitosamente en el backend.");
             setModalOpen(false);
         } catch (err: any) {
             console.error("Error al cancelar el turno:", err);
-    
+
             // Si hay error, vuelve a marcar el turno como pendiente localmente
             setReservaciones((prev) =>
                 prev.map((reservacion) =>
-                    (reservacion.appointment_id === id.appointment_id && reservacion.patient_id === id.patient_id) 
+                    (reservacion.appointment_id === id.appointment_id && reservacion.patient_id === id.patient_id)
                         ? { ...reservacion, state: "pendiente" }
                         : reservacion
                 )
             );
-    
+
             setError(err.message || "Error desconocido");
         }
     };
+
     useEffect(() => {
         const fetchReservaciones = async () => {
             if (!session?.user?.email) {
@@ -150,7 +151,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
         };
 
         fetchReservaciones();
-    }, [session?.user?.email,refreshKey]);
+    }, [session?.user?.email, refreshKey]); // Aquí el refreshKey forza la recarga
 
     if (loading) {
         return <div className="text-center">Cargando...</div>;
