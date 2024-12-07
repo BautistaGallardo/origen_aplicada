@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/table";
 
 interface Turnos {
+  id:string,
+  patient_id:string
   date: string; // Fecha del turno
   hour: string; // Hora del turno
   state: string; // Estado del turno
@@ -17,8 +19,15 @@ interface Turnos {
   patientName: string; // Nombre completo del paciente
 }
 
-const TurnoTable = () => {
+type ID={
+  appointment_id: string
+  patient_id:string
+}
+
+
+const TurnoTable = ({ refreshKey, onTurnoCreated}: { refreshKey: number, onTurnoCreated: () => void}) => {
   const [turnos, setTurnos] = useState<Turnos[]>([]);
+  const [oldTurnos, setOldTurnos] = useState<Turnos[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTurno, setSelectedTurno] = useState<Turnos | null>(null);
@@ -48,11 +57,14 @@ const TurnoTable = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Error al cargar los datos");
+          throw new Error("No Existen turnos reservados");
         }
 
         const data = await response.json();
         setTurnos(data);
+        if(turnos.length<1){
+          
+        }
         setError(null);
       } catch (err: any) {
         console.error("Error al cargar turnos:", err);
@@ -63,7 +75,7 @@ const TurnoTable = () => {
     };
 
     fetchTurnos();
-  }, [session?.user?.email]);
+  }, [session?.user?.email,refreshKey]);
 
   const handleModalOpen = (turno: Turnos, type: "confirm" | "cancel") => {
     setSelectedTurno(turno);
@@ -75,15 +87,54 @@ const TurnoTable = () => {
     setModalType(null);
   };
 
-  const handleConfirm = () => {
-    console.log("Turno confirmado:", selectedTurno);
-    handleModalClose();
+  const handleConfirm = async(id: ID) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/appointmentApi/confirmAppointment`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al cancelar el turno");
+      }
+  
+      console.log("Turno cancelado con éxito:", await response.json());
+    } catch (err) {
+      console.error("Error al cancelar el turno:", err);
+    } finally {
+      onTurnoCreated()
+      handleModalClose();
+    }
   };
 
-  const handleCancel = () => {
-    console.log("Turno cancelado:", selectedTurno);
-    handleModalClose();
+  const handleCancel = async (id: ID) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/appointmentApi/cancelAppointment`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al cancelar el turno");
+      }
+  
+      console.log("Turno cancelado con éxito:", await response.json());
+    } catch (err) {
+      console.error("Error al cancelar el turno:", err);
+    } finally {
+      onTurnoCreated()
+      handleModalClose();
+    }
   };
+  
+
 
   if (loading) {
     return <div className="text-center">Cargando...</div>;
@@ -160,10 +211,15 @@ const TurnoTable = () => {
                     ? "bg-green-500 text-white"
                     : "bg-red-500 text-white"
                 }`}
-                onClick={modalType === "confirm" ? handleConfirm : handleCancel}
+                onClick={() =>
+                  modalType === "confirm"
+                    ? handleConfirm({appointment_id:selectedTurno?.id, patient_id:selectedTurno?.patient_id})
+                    : handleCancel({appointment_id:selectedTurno?.id, patient_id:selectedTurno?.patient_id})
+                }
               >
                 {modalType === "confirm" ? "Confirmar" : "Cancelar"}
               </button>
+
             </div>
           </div>
         </div>

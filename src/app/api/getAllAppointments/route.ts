@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     const appointments = await db.appointment.findMany({
       where: { professional_id: user.professional.id, state: "pendiente" },
       select: {
+        id:true,
         date: true,
         hour: true,
         state: true,
@@ -38,6 +39,7 @@ export async function GET(req: NextRequest) {
           select: {
             Patient: {
               select: {
+                id:true,
                 User: {
                   select: {
                     name: true,
@@ -61,14 +63,20 @@ export async function GET(req: NextRequest) {
 
     // Formatea los datos para la respuesta
     const formattedAppointments = appointments.map((appointment) => ({
+      id:appointment.id,
       date: appointment.date,
       hour: appointment.hour,
       state: appointment.state,
     
+      patient_id: appointment.Reservations.length > 0
+      ? `${appointment.Reservations[0].Patient.id}`
+      : "No patient assigned",
+
       patientName: appointment.Reservations.length > 0
         ? `${appointment.Reservations[0].Patient.User.name} ${appointment.Reservations[0].Patient.User.lastName}`
         : "No patient assigned",
-      patientPhone: appointment.Reservations.length > 0
+      
+        patientPhone: appointment.Reservations.length > 0
         ? appointment.Reservations[0].Patient.User.phone_number
         : "No phone assigned",
     
