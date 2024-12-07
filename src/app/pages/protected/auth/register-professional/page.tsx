@@ -17,8 +17,9 @@ import { useForm } from "react-hook-form";
 import type { Control, FieldPath } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
 import { registerProfessinalAction } from "@/actions/auth-action";
-import { RegisterProfesionalSchema } from "@/libs/zod";
 
 // Definición del esquema de validación usando Zod
 const formSchema = z.object({
@@ -35,10 +36,12 @@ const formSchema = z.object({
 });
 
 const SignupForm = () => {
+  const route = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const form = useForm({
+    
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -55,6 +58,8 @@ const SignupForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+   
+
     try {
       let photoString: string | undefined;
   
@@ -79,7 +84,7 @@ const SignupForm = () => {
       const response = await registerProfessinalAction(payload);
   
       if (response) {
-        console.log("Registration successful");
+        route.push('/pages/protected/Dashboard/professional')
       } else {
         console.error("Registration failed");
       }
