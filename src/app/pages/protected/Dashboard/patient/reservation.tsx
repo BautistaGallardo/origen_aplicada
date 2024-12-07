@@ -204,14 +204,19 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
         {/* Calendario y Horarios Disponibles */}
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Calendario */}
-          <div className="lg:w-1/2">
+          <div className={`lg:w-1/2 ${!selectedEspecialidad || !selectedProfessional ? "opacity-50" : ""}`}>
             <label className="block mb-2 font-medium">Selecciona una fecha</label>
             <Calendar
               mode="single"
               selected={selectedDate || undefined}
               onSelect={(date) => setSelectedDate(date || null)}
-              disabled={(date) => isBefore(date, startOfDay(new Date()))}
+              disabled={(date) =>
+                !selectedEspecialidad || !selectedProfessional || isBefore(date, startOfDay(new Date()))
+              }
             />
+            {!selectedEspecialidad || !selectedProfessional && (
+              <p className="text-sm">Selecciona una especialidad y un profesional para habilitar el calendario.</p>
+            )}
           </div>
 
           {/* Horarios */}
