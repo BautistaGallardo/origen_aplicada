@@ -92,11 +92,17 @@ model Authenticator {
 // Modelos del sistema de citas
 
 model AdminUser {
-  id              String          @id @default(cuid())
-  name            String
-  password        String
-  registration_date DateTime      @default(now())
+  id              String    @id @default(cuid())      
+  email           String    @unique                   
+  name            String                               
+  password        String                               
+  registration_date DateTime @default(now())          
+  createdAt       DateTime @default(now())            
+  updatedAt       DateTime @default(now())             
+
+  @@index([email])                                 
 }
+
 
 model TypeIdCard {
   id            String          @id @default(cuid()) 

@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { LoginPacienteSchema } from "@/libs/zod";
+import { LoginPacienteSchema, LoginAdminSchema } from "@/libs/zod";
 import { db } from "@/libs/db";
 import bcrypt from "bcryptjs";
 
@@ -8,6 +8,8 @@ import bcrypt from "bcryptjs";
 export default {
     providers: [
         Credentials({
+            id: "user-login", // Identificador del proveedor
+            name: "User Login",
             authorize: async (credentials) => {
                 // Validate the credentials with Zod schema
                 const parsed = LoginPacienteSchema.safeParse(credentials);
@@ -54,6 +56,37 @@ export default {
                     role,
                   };
                 return userWithRole;
+            },
+        }),
+        Credentials({
+            id: "admin-login", // Identificador del proveedor
+            name: "Admin Login",
+            authorize: async (credentials) => {
+                const parsed = LoginPacienteSchema.safeParse(credentials);
+                if (!parsed.success) {
+                    throw new Error("Invalid credentials");
+                }
+
+                const { email, password } = parsed.data;
+
+
+                // Buscar administrador en la tabla `admin`
+                const admin = await db.adminUser.findUnique({
+                    where: { email },
+                });
+
+                if (!admin) {
+                    throw new Error("No admin found");
+                }
+
+                // Verificar contraseña
+                const passwordMatch = await bcrypt.compare(password, admin.password);
+                if (!passwordMatch) {
+                    throw new Error("Invalid password");
+                }
+
+                // Retornar administrador con rol
+                return { ...admin, role: "Admin" };
             },
         }),
     ],

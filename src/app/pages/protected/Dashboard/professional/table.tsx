@@ -183,10 +183,10 @@ const TurnoTable = ({
   }
 
   return (
-    <div className=" h-5/6">
+    <div className=" h-full">
       {/* Tabla de Turnos Pendientes */}
       <div className=" h-2/4 flex flex-col justify-between">
-      <div className="">
+      <div className="overflow-auto">
         <h2 className="text-xl font-bold mb-4">Turnos Pendientes</h2>
         <Table className="w-full">
           <TableHeader>
@@ -253,10 +253,10 @@ const TurnoTable = ({
 
       {/* Tabla de Historial de Turnos */}
       <div className="h-2/4">
-          <div className=" flex flex-col justify-between h-full">
-              <div>
+          <div className="flex flex-col justify-between h-full">
+              <div className="overflow-auto">
                 <h2 className="text-xl font-bold mb-4">Historial de Turnos</h2>
-                <Table className="w-full">
+                <Table className="w-full overflow-auto">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Fecha</TableHead>
