@@ -163,7 +163,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     const turnoPendiente = reservaciones.some((reservacion) => reservacion.state === "pendiente");
     const currentData = reservaciones.slice ((currentPage-1) * itemsPage, currentPage * itemsPage);
     return (
-        <>
+        <div className=" flex flex-col justify-between h-3/4">
             <Table className="w-full">
                 <TableHeader>
                     <TableRow>
@@ -196,7 +196,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                                             Cancelar
                                         </button>
                                     ) : (
-                                        <span className="text-gray-400">No disponible</span>
+                                        <span className="text-gray-400 my-2">No disponible</span>
                                     )}
                                 </TableCell>
                             </TableRow>
@@ -237,7 +237,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                     }
                 }}
             />
-        </>
+        </div>
     );
 };
 

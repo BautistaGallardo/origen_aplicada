@@ -150,7 +150,7 @@ const TurnoTable = ({ refreshKey, onTurnoCreated}: { refreshKey: number, onTurno
 
   const currentData = turnos.slice((currentPage-1) * itemsPage, currentPage*itemsPage);
   return (
-    <div>
+    <div className="">
       <Table className="w-full">
         <TableHeader>
           <TableRow>
