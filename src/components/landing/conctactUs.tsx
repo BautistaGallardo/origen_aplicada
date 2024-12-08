@@ -1,15 +1,18 @@
-'use client'
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
+'use client';
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 const Contact = () => {
   return (
-    <div className="bg-black text-white min-h-screen flex items-center justify-center">
+    <div
+      id="contact" // Agregamos el identificador para enlazar desde el menú
+      className="bg-black text-white min-h-screen flex items-center justify-center"
+    >
       <div className="mx-auto max-w-md space-y-8 p-4">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold">Contactanos</h1>
+          <h1 className="text-3xl font-bold">Contáctanos</h1>
           <p className="text-white-300">
             Todos los mensajes importan, esperamos el de usted.
           </p>
@@ -39,7 +42,7 @@ const Contact = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Contact;
