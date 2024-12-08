@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     // Obtiene los turnos asociados al profesional
     const appointments = await db.appointment.findMany({
-      where: { professional_id: user.professional.id, state: "pendiente" },
+      where: { professional_id: user.professional.id},
       select: {
         id:true,
         date: true,
