@@ -24,6 +24,7 @@ type Profesional = {
   name: string;
   email: string;
   availableTurns: Turno[];
+  photo: string;
 };
 
 type Turno = {
@@ -135,7 +136,6 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
   
         if (response.ok) {
           console.log("Reserva creada exitosamente:", data);
-          alert("Reserva creada con éxito");
           onTurnoCreated()
           onClose(); // Cerrar el modal
         } else {
@@ -192,12 +192,21 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
                 <SelectValue placeholder="Selecciona un profesional" />
               </SelectTrigger>
               <SelectContent>
-                {filteredProfessionals.map((prof) => (
-                  <SelectItem key={prof.id} value={prof.id}>
-                    {prof.name} - {prof.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+              {filteredProfessionals.map((prof) => (
+                <SelectItem key={prof.id} value={prof.id}>
+                  <div className="flex items-center gap-2">
+                    {/* Mostrar la imagen del profesional */}
+                    <img
+                      src={prof.photo} // Usar la cadena Base64 o la URL como fuente de la imagen
+                      alt={`${prof.name}'s photo`}
+                      className="w-8 h-8 rounded-full" // Estilos para la imagen
+                    />
+                    {/* Mostrar el nombre del profesional */}
+                    <span>{prof.name}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
             </Select>
           </div>
         </div>
@@ -205,14 +214,19 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
         {/* Calendario y Horarios Disponibles */}
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Calendario */}
-          <div className="lg:w-1/2">
+          <div className={`lg:w-1/2 ${!selectedEspecialidad || !selectedProfessional ? "opacity-50" : ""}`}>
             <label className="block mb-2 font-medium">Selecciona una fecha</label>
             <Calendar
               mode="single"
               selected={selectedDate || undefined}
               onSelect={(date) => setSelectedDate(date || null)}
-              disabled={(date) => isBefore(date, startOfDay(new Date()))}
+              disabled={(date) =>
+                !selectedEspecialidad || !selectedProfessional || isBefore(date, startOfDay(new Date()))
+              }
             />
+            {!selectedEspecialidad || !selectedProfessional && (
+              <p className="text-sm">Selecciona una especialidad y un profesional para habilitar el calendario.</p>
+            )}
           </div>
 
           {/* Horarios */}

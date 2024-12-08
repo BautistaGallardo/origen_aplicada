@@ -13,6 +13,7 @@ type Profesional = {
   name: string | null;
   email: string | null;
   availableTurns: Turno[];
+  photo: string | null;
 };
 
 type Especialidad = {
@@ -49,7 +50,7 @@ export async function GET() {
     const especialidadesMap = new Map<string, Especialidad>();
 
     profesionales.forEach((prof) => {
-      const { specialty, User, Appointments } = prof;
+      const { specialty, User, Appointments, photo } = prof;
       
       // Validar que el usuario asociado al profesional existe
       if (!User) {
@@ -83,6 +84,7 @@ export async function GET() {
           id: User.id,
           name: User.name,
           email: User.email,
+          photo,
           availableTurns,
         });
       } else {
@@ -94,6 +96,7 @@ export async function GET() {
               id: User.id,
               name: User.name,
               email: User.email,
+              photo, 
               availableTurns,
             },
           ],

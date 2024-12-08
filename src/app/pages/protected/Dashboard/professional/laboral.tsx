@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 const WorkScheduleModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [startTime, setStartTime] = useState("8");
+  const [startTime, setStartTime] = useState("08");
   const [endTime, setEndTime] = useState("16");
   const [shiftTime, setShiftTime] = useState("15");
   const [startDate, setStartDate] = useState(""); // Fecha de inicio en formato string (para Input)
@@ -27,6 +27,7 @@ const WorkScheduleModal = () => {
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
+  
 
   const handleSubmit = async () => {
     try {

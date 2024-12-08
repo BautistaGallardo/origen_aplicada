@@ -10,17 +10,17 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const menus = [
-    { title: "Inicio", path: "/" },
-    { title: "Sobre Nosotros", path: "/about" },
-    { title: "Profesionales", path: "/professionals" },
-    { title: "Contáctanos", path: "/contact" },
+    { title: "Inicio", anchor: "#inicio" },
+    { title: "Sobre Nosotros", anchor: "#about" },
+    { title: "Profesionales", anchor: "#professionals" },
+    { title: "Contáctanos", anchor: "#contact" },
   ];
 
   const isAuthenticated = status === "authenticated";
 
   return (
-    <nav className="bg-white w-full border-b md:border-0 E">
-      <div className="items-center px-4 max-w-screen-xl mx-auto md:flex  " >
+    <nav className="bg-white w-full border-b md:border-0">
+      <div className="items-center px-4 max-w-screen-xl mx-auto md:flex">
         {/* Contenido para usuarios autenticados */}
         {isAuthenticated ? (
           <div className="flex items-center justify-between py-3 md:py-5 w-full">
@@ -28,7 +28,7 @@ export default function Navbar() {
               Hola, {session?.user?.name || "Usuario"}
             </h1>
             <button
-              onClick={() => signOut({callbackUrl: "/"})}
+              onClick={() => signOut({ callbackUrl: "/" })}
               className="px-4 py-2 text-white bg-black rounded-md hover:bg-gray-800"
             >
               Cerrar Sesión
@@ -59,13 +59,18 @@ export default function Navbar() {
               <ul className="flex flex-col items-center space-y-8 md:flex-row md:justify-end md:space-x-6 md:space-y-0">
                 {menus.map((item, idx) => (
                   <li key={idx} className="text-gray-600">
-                    <Link href={item.path}>{item.title}</Link>
+                    <a href={item.anchor} className="hover:text-gray-800">
+                      {item.title}
+                    </a>
                   </li>
                 ))}
                 <li>
                   <Link
-                    href="pages/protected/auth/login"
-                    className="inline-block px-4 py-2 text-white bg-black rounded-md hover:bg-gray-800"
+                    href="/pages/protected/auth/login"
+                    className="inline-block px-4 py-2 text-white rounded-md"
+                    style={{
+                      backgroundColor: "#F56E13", // Cambiar color del botón
+                    }}
                   >
                     Iniciar Sesión
                   </Link>
