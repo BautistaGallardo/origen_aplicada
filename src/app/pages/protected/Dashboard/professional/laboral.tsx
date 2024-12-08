@@ -64,19 +64,20 @@ const WorkScheduleModal = () => {
       alert("Hubo un problema al procesar tu solicitud.");
     }
   };
-
   return (
-    <Dialog open = {isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>Configurar Jornada Laboral</Button>
+        <Button className="bg-custom-blueGray text-white hover:bg-opacity-80">
+          Configurar Jornada Laboral
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Jornada Laboral</DialogTitle>
+          <DialogTitle className="text-custom-blueGray">Jornada Laboral</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <p>Selecciona tus días laborales</p>
+            <p className="text-custom-blueGray">Selecciona tus días laborales</p>
             <div className="flex space-x-2">
               {days.map((day) => (
                 <button
@@ -84,8 +85,8 @@ const WorkScheduleModal = () => {
                   onClick={() => toggleDay(day)}
                   className={`w-10 h-10 rounded-full ${
                     selectedDays.includes(day)
-                      ? "bg-gray-800 text-white"
-                      : "bg-gray-200"
+                      ? "bg-custom-orange text-white"
+                      : "bg-custom-lightGray text-custom-blueGray"
                   }`}
                 >
                   {day}
@@ -94,46 +95,46 @@ const WorkScheduleModal = () => {
             </div>
           </div>
           <div>
-            <p>Selecciona el rango de fechas</p>
+            <p className="text-custom-blueGray">Selecciona el rango de fechas</p>
             <Input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full"
+              className="w-full border border-custom-blueGray"
             />
             <Input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full mt-2"
+              className="w-full mt-2 border border-custom-blueGray"
             />
           </div>
           <div>
-            <p>Selecciona tu horario laboral</p>
+            <p className="text-custom-blueGray">Selecciona tu horario laboral</p>
             <div className="flex space-x-2">
               <Input
                 type="number"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-16"
+                className="w-16 border border-custom-blueGray"
                 min="0"
                 max="24"
               />
-              <span>a</span>
+              <span className="text-custom-blueGray">a</span>
               <Input
                 type="number"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-16"
+                className="w-16 border border-custom-blueGray"
                 min="0"
                 max="24"
               />
             </div>
           </div>
           <div>
-            <p>Selecciona el tiempo de turno (en minutos)</p>
+            <p className="text-custom-blueGray">Selecciona el tiempo de turno (en minutos)</p>
             <Select value={shiftTime} onValueChange={setShiftTime}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full border border-custom-blueGray">
                 <SelectValue placeholder="Selecciona un tiempo" />
               </SelectTrigger>
               <SelectContent>
@@ -146,22 +147,31 @@ const WorkScheduleModal = () => {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="destructive" className="bg-red-500 hover:bg-red-600 text-white" onClick={() => setIsOpen(false)} // Cerrar el modal al cancelar
+          <Button
+            variant="destructive"
+            className="bg-red-500 text-white hover:bg-opacity-80"
+            onClick={() => setIsOpen(false)} // Cerrar el modal al cancelar
           >
             Cancelar
           </Button>
-          <Button onClick={handleSubmit}>Confirmar</Button>
+          <Button
+            className="border border-custom-orange bg-white-300 text-custom-orange hover:bg-custom-orange hover:text-white transition duration-300"
+            onClick={handleSubmit}
+          >
+            Confirmar
+          </Button>
         </DialogFooter>
-
+  
         {result && (
-          <div className="mt-4 p-4 bg-gray-100 rounded">
-            <h3 className="font-bold">Resultados Generados</h3>
-            <pre>{JSON.stringify(result, null, 2)}</pre>
+          <div className="mt-4 p-4 bg-custom-lightGray rounded">
+            <h3 className="font-bold text-custom-blueGray">Resultados Generados</h3>
+            <pre className="text-custom-blueGray">{JSON.stringify(result, null, 2)}</pre>
           </div>
         )}
       </DialogContent>
     </Dialog>
   );
+  
 };
 
 export default WorkScheduleModal;

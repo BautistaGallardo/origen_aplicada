@@ -27,20 +27,20 @@ const DashboardPatient = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-100 text-gray-900">
+    <div className="min-h-screen flex bg-custom-lightGray text-custom-blueGray">
       {/* Sidebar */}
       <aside className="bg-white shadow-lg w-64 fixed h-full">
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-custom-blueGray">
           {isAuthenticated && (
             <div className="space-y-4">
               {/* Saludo */}
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-2xl font-bold text-custom-blueGray">
                 Hola, {session?.user?.name || "Usuario"}
               </h1>
               {/* Botón cerrar sesión */}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="w-full px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
+                className="w-full px-4 py-2 text-white bg-custom-orange rounded-md hover:bg-opacity-80"
               >
                 Cerrar Sesión
               </button>
@@ -52,7 +52,7 @@ const DashboardPatient = () => {
             <li>
               <button
                 onClick={openTurnoModal}
-                className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="w-full text-left px-4 py-2 bg-custom-blueGray text-white rounded-md hover:bg-opacity-80"
               >
                 Reservar un Turno
               </button>
@@ -60,7 +60,7 @@ const DashboardPatient = () => {
             <li>
               <button
                 onClick={() => setCurrentView("historial")}
-                className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="w-full text-left px-4 py-2 bg-custom-blueGray text-white rounded-md hover:bg-opacity-80"
               >
                 Historial de Turnos
               </button>
@@ -68,7 +68,7 @@ const DashboardPatient = () => {
             <li>
               <button
                 onClick={() => setCurrentView("dashboard")}
-                className="w-full text-left px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                className="w-full text-left px-4 py-2 bg-custom-lightGray text-custom-blueGray rounded-md hover:bg-opacity-80"
               >
                 Volver al Dashboard
               </button>
@@ -81,16 +81,14 @@ const DashboardPatient = () => {
       <main className="flex-1 ml-64 p-6 space-y-4">
         {currentView === "dashboard" && (
           <div>
-            <h2 className="text-2xl font-bold">
-              Bienvenido al Portal de Paciente
-            </h2>
-            <p className="text-gray-700">
+            <h2 className="text-2xl font-bold">Bienvenido al Portal de Paciente</h2>
+            <p className="text-custom-blueGray">
               Aquí puedes gestionar tus turnos y revisar tu información.
             </p>
           </div>
         )}
         {currentView === "historial" && (
-          <div className=" h-full">
+          <div className="h-full">
             <h2 className="text-2xl font-bold mb-4">Historial de Turnos</h2>
             <TurnoTable refreshKey={refreshKey} />
           </div>

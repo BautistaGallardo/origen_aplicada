@@ -58,68 +58,92 @@ const SignupForm = () => {
   };
 
   return (
-    <div className="bg-white p-10 rounded-2xl shadow-2xl max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold text-center text-black-600 mb-4">Regístrate</h2>
-      <p className="text-sm text-center text-gray-500 mb-6">
-        Completa todos los campos requeridos
-      </p>
-      <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <SignupFormField
-            name="name"
-            label="Nombre"
-            placeholder="Tu nombre"
-            formControl={form.control}
-          />
-          <SignupFormField
-            name="lastname"
-            label="Apellido"
-            placeholder="Tu apellido"
-            formControl={form.control}
-          />
-          <SignupFormField
-            name="email"
-            label="Email"
-            placeholder="Email"
-            inputType="email"
-            formControl={form.control}
-          />
-          <SignupFormField
-            name="password"
-            label="Contraseña"
-            placeholder="Contraseña"
-            inputType="password"
-            formControl={form.control}
-          />
-          <SignupFormField
-            name="phone_number"
-            label="Teléfono"
-            placeholder="Teléfono"
-            formControl={form.control}
-          />
-          <SignupFormField
-            name="id_card"
-            label="Documento"
-            placeholder="Documento"
-            formControl={form.control}
-          />
-          <SignupFormField
-            name="type_id_card"
-            label="Nacionalidad"
-            placeholder="Nacionalidad"
-            formControl={form.control}
-          />
-          <div className="flex flex-col">
-            <label className="text-gray-700 mb-1">Fecha de Nacimiento</label>
-            <input
-               type="date"
-               onChange={(e) => setSelectedDate(new Date(e.target.value))}
-               className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 bg-white rounded-xl shadow-2xl overflow-hidden max-w-5xl">
+        {/* Imagen como fondo */}
+        <div
+          className="hidden md:block bg-cover bg-center"
+          style={{ backgroundImage: "url('/imageClinic/Foto5.png')" }}
+        ></div>
+  
+        {/* Formulario */}
+        <div className="flex items-center justify-center p-12">
+          <div className="w-full max-w-md">
+            <h2 className="text-3xl font-bold text-center text-custom-realBlue mb-4">
+              Regístrate
+            </h2>
+            <p className="text-sm text-center text-gray-500 mb-6">
+              Completa todos los campos requeridos
+            </p>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                <SignupFormField
+                  name="name"
+                  label="Nombre"
+                  placeholder="Tu nombre"
+                  formControl={form.control}
+                />
+                <SignupFormField
+                  name="lastname"
+                  label="Apellido"
+                  placeholder="Tu apellido"
+                  formControl={form.control}
+                />
+                <SignupFormField
+                  name="email"
+                  label="Email"
+                  placeholder="Email"
+                  inputType="email"
+                  formControl={form.control}
+                />
+                <SignupFormField
+                  name="password"
+                  label="Contraseña"
+                  placeholder="Contraseña"
+                  inputType="password"
+                  formControl={form.control}
+                />
+                <SignupFormField
+                  name="phone_number"
+                  label="Teléfono"
+                  placeholder="Teléfono"
+                  formControl={form.control}
+                />
+                <SignupFormField
+                  name="id_card"
+                  label="Documento"
+                  placeholder="Documento"
+                  formControl={form.control}
+                />
+                <SignupFormField
+                  name="type_id_card"
+                  label="Nacionalidad"
+                  placeholder="Nacionalidad"
+                  formControl={form.control}
+                />
+                <div className="flex flex-col">
+                  <label className="text-gray-700 mb-1">
+                    Fecha de Nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                    className="w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="col-span-full">
+                  <Button type="submit" className="w-full mt-4 bg-custom-realBlue">
+                    Registrarse
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </div>
-          <Button type="submit" className="w-full mt-4">Registrarse</Button>
-        </form>
-      </Form>
+        </div>
+      </div>
     </div>
   );
 };

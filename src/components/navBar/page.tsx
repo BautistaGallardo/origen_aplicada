@@ -19,7 +19,7 @@ export default function Navbar() {
   const isAuthenticated = status === "authenticated";
 
   return (
-    <nav className="bg-white w-full border-b md:border-0">
+    <nav className="w-full border-b md:border-0 bg-custom-lightGray">
       <div className="items-center px-4 max-w-screen-xl mx-auto md:flex">
         {/* Contenido para usuarios autenticados */}
         {isAuthenticated ? (
@@ -38,8 +38,13 @@ export default function Navbar() {
           <>
             {/* Contenido para usuarios no autenticados */}
             <div className="flex items-center justify-between py-3 md:py-5">
-              <Link href="/">
-                <h1 className="text-3xl font-bold text-gray-800">ORIGEN</h1>
+              <Link href="/" className="flex items-center space-x-2">
+                {/* Imagen y texto al lado */}
+                <img
+                  src="/imageClinic/Foto1.jpg" // Cambia esto al path correcto de tu imagen
+                  alt="Logo Origen"
+                  className="h-10 w-auto"
+                />
               </Link>
               <div className="md:hidden">
                 <button
@@ -67,10 +72,7 @@ export default function Navbar() {
                 <li>
                   <Link
                     href="/pages/protected/auth/login"
-                    className="inline-block px-4 py-2 text-white rounded-md"
-                    style={{
-                      backgroundColor: "#F56E13", // Cambiar color del botón
-                    }}
+                    className="inline-block px-4 py-2 text-custom-orange border border-custom-orange rounded-md hover:bg-custom-orange hover:text-white transition duration-300"
                   >
                     Iniciar Sesión
                   </Link>

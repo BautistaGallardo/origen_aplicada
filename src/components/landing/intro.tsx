@@ -6,10 +6,22 @@ import { Button } from "@/components/ui/button";
 const Introduccion = () => {
   return (
     <div
-      id="inicio" // Agregamos el identificador para enlazar desde el menú
-      className="bg-white text-black min-h-screen flex items-center justify-center p-4"
+      id="inicio"
+      className="relative bg-custom-lightGray min-h-screen flex items-center justify-center"
     >
-      <div className="max-w-2xl text-center space-y-6">
+      {/* Imagen de fondo */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: "url('/imageClinic/Foto6.jpg')", // Cambia la ruta según la ubicación de tu imagen
+        }}
+      ></div>
+
+      {/* Superposición para mejorar la legibilidad */}
+      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+
+      {/* Contenido de texto */}
+      <div className="relative text-center text-white max-w-2xl space-y-6 z-10">
         <h1 className="text-4xl font-bold tracking-wider">
           En manos de PROFESIONALES
         </h1>
@@ -18,7 +30,7 @@ const Introduccion = () => {
         </p>
         <Link
           href="pages/protected/auth/login"
-          className="inline-block px-4 py-2 text-white bg-black rounded-md hover:bg-gray-800"
+          className="inline-block px-6 py-2 mt-6 text-white bg-custom-orange rounded-md hover:bg-custom-orange hover:text-white transition duration-300"
         >
           Pedir Turno
         </Link>
