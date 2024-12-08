@@ -79,7 +79,6 @@ const DashboardProfessional = () => {
         {/* Historial de pacientes */}
         {view === "historial" && (
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Historial de Pacientes</h2>
             <TurnoTable refreshKey={refreshKey} onTurnoCreated={handleTurnoCreated}/>
           </div>
         )}

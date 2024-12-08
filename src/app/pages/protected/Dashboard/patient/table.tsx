@@ -63,24 +63,24 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { data: session } = useSession();
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPage = 10;
-    const totalPages = Math.ceil(reservaciones.length / itemsPage);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedReservacionId, setSelectedReservacionId] = useState<ID | null>(null);
 
+    const [proximosTurnosPage, setProximosTurnosPage] = useState(1);
+    const [historialTurnosPage, setHistorialTurnosPage] = useState(1);
+    const itemsPerPage = 5;
+
     const cancelarTurno = async (id: ID) => {
         try {
-            // Actualiza localmente el estado a "cancelado" para la tabla del administrador
             setReservaciones((prev) =>
                 prev.map((reservacion) =>
-                    (reservacion.appointment_id === id.appointment_id && reservacion.patient_id === id.patient_id)
+                    reservacion.appointment_id === id.appointment_id &&
+                    reservacion.patient_id === id.patient_id
                         ? { ...reservacion, state: "cancelado" }
                         : reservacion
                 )
             );
 
-            // Realiza la petición al backend
             const response = await fetch(`http://localhost:3000/api/cancelReservation`, {
                 method: "PUT",
                 headers: {
@@ -94,15 +94,14 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                 throw new Error(errorData.error || "Error al cancelar el turno");
             }
 
-            console.log("Turno cancelado exitosamente en el backend.");
             setModalOpen(false);
         } catch (err: any) {
             console.error("Error al cancelar el turno:", err);
 
-            // Si hay error, vuelve a marcar el turno como pendiente localmente
             setReservaciones((prev) =>
                 prev.map((reservacion) =>
-                    (reservacion.appointment_id === id.appointment_id && reservacion.patient_id === id.patient_id)
+                    reservacion.appointment_id === id.appointment_id &&
+                    reservacion.patient_id === id.patient_id
                         ? { ...reservacion, state: "pendiente" }
                         : reservacion
                 )
@@ -139,11 +138,9 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                 }
 
                 const data = await response.json();
-                console.log(data);
                 setReservaciones(data);
                 setError(null);
             } catch (err: any) {
-                console.error("Error al cargar reservaciones:", err);
                 setError(err.message || "Error desconocido");
             } finally {
                 setLoading(false);
@@ -151,7 +148,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
         };
 
         fetchReservaciones();
-    }, [session?.user?.email, refreshKey]); // Aquí el refreshKey forza la recarga
+    }, [session?.user?.email, refreshKey]);
 
     if (loading) {
         return <div className="text-center">Cargando...</div>;
@@ -160,74 +157,98 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     if (error) {
         return <div className="text-center text-red-500">Error: {error}</div>;
     }
-    const turnoPendiente = reservaciones.some((reservacion) => reservacion.state === "pendiente");
-    const currentData = reservaciones.slice ((currentPage-1) * itemsPage, currentPage * itemsPage);
-    return (
-        <div className=" flex flex-col justify-between h-3/4">
-            <Table className="w-full">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Fecha</TableHead>
-                        <TableHead>Hora</TableHead>
-                        <TableHead>Profesional</TableHead>
-                        <TableHead>Especialidad</TableHead>
-                        <TableHead>Estado</TableHead>
-                        {turnoPendiente && <TableHead>Cancelar Turno</TableHead>}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {currentData.length > 0 ? (
-                        currentData.map((reservacion) => (
-                            <TableRow key={reservacion.appointment_id}>
-                                <TableCell>{new Date(reservacion.Appointment.date).toLocaleDateString()}</TableCell>
-                                <TableCell>{reservacion.Appointment.hour}</TableCell>
-                                <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
-                                <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
-                                <TableCell>{reservacion.state}</TableCell>
-                                <TableCell>
-                                    {reservacion.state === "pendiente" ? (
-                                        <button
-                                            onClick={() => {
-                                                setSelectedReservacionId({ patient_id: reservacion.patient_id, appointment_id: reservacion.appointment_id });
-                                                setModalOpen(true);
-                                            }}
-                                            className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
-                                        >
-                                            Cancelar
-                                        </button>
-                                    ) : (
-                                        <span className="text-gray-400 my-2">No disponible</span>
+
+    const proximosTurnos = reservaciones.filter((r) => r.state === "pendiente");
+    const historialTurnos = reservaciones.filter(
+        (r) => r.state === "cancelado" || r.state === "realizado"
+    );
+
+    const renderTable = (data: Reservacion[], currentPage: number, onPageChange: (page: number) => void, showCancel: boolean) => {
+        const totalPages = Math.ceil(data.length / itemsPerPage);
+        const currentData = data.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+        );
+
+        return (
+            <>
+                <Table className="w-full">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Fecha</TableHead>
+                            <TableHead>Hora</TableHead>
+                            <TableHead>Profesional</TableHead>
+                            <TableHead>Especialidad</TableHead>
+                            <TableHead>Estado</TableHead>
+                            {showCancel && <TableHead>Cancelar Turno</TableHead>}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {currentData.length > 0 ? (
+                            currentData.map((reservacion) => (
+                                <TableRow key={reservacion.appointment_id}>
+                                    <TableCell>{new Date(reservacion.Appointment.date).toLocaleDateString()}</TableCell>
+                                    <TableCell>{reservacion.Appointment.hour}</TableCell>
+                                    <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
+                                    <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
+                                    <TableCell>{reservacion.state}</TableCell>
+                                    {showCancel && (
+                                        <TableCell>
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedReservacionId({
+                                                        patient_id: reservacion.patient_id,
+                                                        appointment_id: reservacion.appointment_id,
+                                                    });
+                                                    setModalOpen(true);
+                                                }}
+                                                className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                                            >
+                                                Cancelar
+                                            </button>
+                                        </TableCell>
                                     )}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center">
+                                    No hay datos disponibles
                                 </TableCell>
                             </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={5} className="text-center">
-                                No hay reservaciones disponibles
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-                     {/* Controles de paginación */}
-            <div className="flex justify-center mt-4">
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    className="px-4 py-2 bg-gray-300 rounded mr-2"
-                    disabled={currentPage === 1}
-                >
-                    Anterior
-                </button>
-                <span className="px-4 py-2">{`Página ${currentPage} de ${totalPages}`}</span>
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    className="px-4 py-2 bg-gray-300 rounded ml-2"
-                    disabled={currentPage === totalPages}
-                >
-                    Siguiente
-                </button>
-            </div>
+                        )}
+                    </TableBody>
+                </Table>
+                {/* Controles de paginación */}
+                <div className="flex justify-center mt-4">
+                    <button
+                        onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+                        className="px-4 py-2 bg-gray-300 rounded mr-2"
+                        disabled={currentPage === 1}
+                    >
+                        Anterior
+                    </button>
+                    <span className="px-4 py-2">{`Página ${currentPage} de ${totalPages}`}</span>
+                    <button
+                        onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+                        className="px-4 py-2 bg-gray-300 rounded ml-2"
+                        disabled={currentPage === totalPages}
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            </>
+        );
+    };
+
+    return (
+        <>
+            <h2 className="text-xl font-semibold mb-4">Próximos Turnos</h2>
+            {renderTable(proximosTurnos, proximosTurnosPage, setProximosTurnosPage, true)}
+
+            <h2 className="text-xl font-semibold mt-8 mb-4">Historial de Turnos</h2>
+            {renderTable(historialTurnos, historialTurnosPage, setHistorialTurnosPage, false)}
+
             <Modal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}

@@ -163,7 +163,12 @@ const SignupForm = () => {
                     <SelectValue placeholder="Selecciona una especialidad" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Nutricion">Nutrición</SelectItem>
+                    <SelectItem value="Diagnostico">Diagnostico por Imagenes</SelectItem>
+                    <SelectItem value="Ecografías">Ecografías</SelectItem>
+                    <SelectItem value="Fonoaudiologia">Fonoadiología</SelectItem>
+                    <SelectItem value="Ginecologia">Ginecología</SelectItem>
+                    <SelectItem value="Kinesiologo">Kinesiología</SelectItem>
+                    <SelectItem value="Odontologia">Odontología</SelectItem>
                     <SelectItem value="Psicologia">Psicología</SelectItem>
                     <SelectItem value="Psiquiatria">Psiquiatría</SelectItem>
                   </SelectContent>
