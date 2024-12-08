@@ -90,7 +90,7 @@ const DashboardPatient = () => {
           </div>
         )}
         {currentView === "historial" && (
-          <div>
+          <div className=" h-full">
             <h2 className="text-2xl font-bold mb-4">Historial de Turnos</h2>
             <TurnoTable refreshKey={refreshKey} />
           </div>

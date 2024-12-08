@@ -242,7 +242,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     };
 
     return (
-        <>
+        <div>
             <h2 className="text-xl font-semibold mb-4">Próximos Turnos</h2>
             {renderTable(proximosTurnos, proximosTurnosPage, setProximosTurnosPage, true)}
 
@@ -258,7 +258,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                     }
                 }}
             />
-        </>
+        </div>
     );
 };
 
