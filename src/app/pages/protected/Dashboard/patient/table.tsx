@@ -171,7 +171,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
         );
 
         return (
-            <>
+            <div className=" h-full flex flex-col justify-between">
                 <Table className="w-full">
                     <TableHeader>
                         <TableRow>
@@ -237,17 +237,21 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                         Siguiente
                     </button>
                 </div>
-            </>
+            </div>
         );
     };
 
     return (
-        <div>
-            <h2 className="text-xl font-semibold mb-4">Próximos Turnos</h2>
-            {renderTable(proximosTurnos, proximosTurnosPage, setProximosTurnosPage, true)}
+        <div className=" h-5/6">
+            <div className=" h-2/4 m-1">
+                <h2 className="text-xl font-semibold mb-4">Próximos Turnos</h2>
+                {renderTable(proximosTurnos, proximosTurnosPage, setProximosTurnosPage, true)}
+            </div>
 
-            <h2 className="text-xl font-semibold mt-8 mb-4">Historial de Turnos</h2>
-            {renderTable(historialTurnos, historialTurnosPage, setHistorialTurnosPage, false)}
+            <div className="h-2/4 m-1">
+                <h2 className="text-xl font-semibold mt-8 mb-4">Historial de Turnos</h2>
+                {renderTable(historialTurnos, historialTurnosPage, setHistorialTurnosPage, false)}
+            </div>
 
             <Modal
                 isOpen={modalOpen}

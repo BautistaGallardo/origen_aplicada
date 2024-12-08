@@ -183,46 +183,49 @@ const TurnoTable = ({
   }
 
   return (
-    <div>
+    <div className=" h-5/6">
       {/* Tabla de Turnos Pendientes */}
-      <h2 className="text-xl font-bold mb-4">Turnos Pendientes</h2>
-      <Table className="w-full">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Hora</TableHead>
-            <TableHead>Paciente</TableHead>
-            <TableHead>Teléfono</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Acciones</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {currentPendingData.map((turno) => (
-            <TableRow key={turno.id}>
-              <TableCell>{new Date(turno.date).toLocaleDateString()}</TableCell>
-              <TableCell>{turno.hour}</TableCell>
-              <TableCell>{turno.patientName}</TableCell>
-              <TableCell>{turno.patientPhone}</TableCell>
-              <TableCell>{turno.state}</TableCell>
-              <TableCell>
-                <button
-                  className="px-4 py-2 text-white bg-green-500 rounded-md"
-                  onClick={() => handleModalOpen(turno, "confirm")}
-                >
-                  Confirmar
-                </button>
-                <button
-                  className="px-4 py-2 ml-2 text-white bg-red-500 rounded-md"
-                  onClick={() => handleModalOpen(turno, "cancel")}
-                >
-                  Cancelar
-                </button>
-              </TableCell>
+      <div className=" h-2/4 flex flex-col justify-between">
+      <div className="">
+        <h2 className="text-xl font-bold mb-4">Turnos Pendientes</h2>
+        <Table className="w-full">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Fecha</TableHead>
+              <TableHead>Hora</TableHead>
+              <TableHead>Paciente</TableHead>
+              <TableHead>Teléfono</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Acciones</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {currentPendingData.map((turno) => (
+              <TableRow key={turno.id}>
+                <TableCell>{new Date(turno.date).toLocaleDateString()}</TableCell>
+                <TableCell>{turno.hour}</TableCell>
+                <TableCell>{turno.patientName}</TableCell>
+                <TableCell>{turno.patientPhone}</TableCell>
+                <TableCell>{turno.state}</TableCell>
+                <TableCell>
+                  <button
+                    className="px-4 py-2 text-white bg-green-500 rounded-md"
+                    onClick={() => handleModalOpen(turno, "confirm")}
+                  >
+                    Confirmar
+                  </button>
+                  <button
+                    className="px-4 py-2 ml-2 text-white bg-red-500 rounded-md"
+                    onClick={() => handleModalOpen(turno, "cancel")}
+                  >
+                    Cancelar
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <div className="flex justify-center mt-4">
         <button
           className="px-4 py-2 bg-gray-300 rounded-md"
@@ -246,57 +249,62 @@ const TurnoTable = ({
           Siguiente
         </button>
       </div>
+      </div>
 
       {/* Tabla de Historial de Turnos */}
-      <div className=" justify-between ">
-      <h2 className="text-xl font-bold mb-4">Historial de Turnos</h2>
-      <Table className="w-full">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Hora</TableHead>
-            <TableHead>Paciente</TableHead>
-            <TableHead>Teléfono</TableHead>
-            <TableHead>Estado</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {currentHistoryData.map((turno) => (
-            <TableRow key={turno.id}>
-              <TableCell>{new Date(turno.date).toLocaleDateString()}</TableCell>
-              <TableCell>{turno.hour}</TableCell>
-              <TableCell>{turno.patientName}</TableCell>
-              <TableCell>{turno.patientPhone}</TableCell>
-              <TableCell>{turno.state}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <div className="flex justify-center mt-4">
-        <button
-          className="px-4 py-2 bg-gray-300 rounded-md"
-          onClick={() =>
-            setCurrentPageHistory((prev) => Math.max(prev - 1, 1))
-          }
-          disabled={currentPageHistory === 1}
-        >
-          Anterior
-        </button>
-        <span className="px-4 py-2">
-          Página {currentPageHistory} de {totalPagesHistory}
-        </span>
-        <button
-          className="px-4 py-2 bg-gray-300 rounded-md"
-          onClick={() =>
-            setCurrentPageHistory((prev) =>
-              Math.min(prev + 1, totalPagesHistory)
-            )
-          }
-          disabled={currentPageHistory === totalPagesHistory}
-        >
-          Siguiente
-        </button>
-      </div>
+      <div className="h-2/4">
+          <div className=" flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold mb-4">Historial de Turnos</h2>
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Hora</TableHead>
+                      <TableHead>Paciente</TableHead>
+                      <TableHead>Teléfono</TableHead>
+                      <TableHead>Estado</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentHistoryData.map((turno) => (
+                      <TableRow key={turno.id}>
+                        <TableCell>{new Date(turno.date).toLocaleDateString()}</TableCell>
+                        <TableCell>{turno.hour}</TableCell>
+                        <TableCell>{turno.patientName}</TableCell>
+                        <TableCell>{turno.patientPhone}</TableCell>
+                        <TableCell>{turno.state}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="flex justify-center mt-4">
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded-md"
+                  onClick={() =>
+                    setCurrentPageHistory((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPageHistory === 1}
+                >
+                  Anterior
+                </button>
+                <span className="px-4 py-2">
+                  Página {currentPageHistory} de {totalPagesHistory}
+                </span>
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded-md"
+                  onClick={() =>
+                    setCurrentPageHistory((prev) =>
+                      Math.min(prev + 1, totalPagesHistory)
+                    )
+                  }
+                  disabled={currentPageHistory === totalPagesHistory}
+                >
+                  Siguiente
+                </button>
+            </div>
+        </div>
       </div>
 
       {/* Modal */}
