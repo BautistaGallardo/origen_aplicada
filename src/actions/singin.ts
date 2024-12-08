@@ -6,7 +6,6 @@ export const loginAction = async (
     values: z.infer<typeof LoginPacienteSchema> | z.infer<typeof LoginProfesionalSchema>
 ) => {
     try {
-        // Autenticación mediante next-auth
         const result = await signIn("credentials", {
             email: values.email,
             password: values.password,
@@ -18,12 +17,10 @@ export const loginAction = async (
             return { success: false, error: "Error en el inicio de sesión: credenciales incorrectas" };
         }
 
-        // Retorna un objeto consistente
         return { success: true, result };
     } catch (error) {
-        console.error(error); // Registro en consola para diagnóstico
+        console.error(error);
 
-        // Devuelve un mensaje de error específico o genérico
         const errorMessage =
             error instanceof Error ? error.message : "Error inesperado en el inicio de sesión";
         return { success: false, error: errorMessage };
