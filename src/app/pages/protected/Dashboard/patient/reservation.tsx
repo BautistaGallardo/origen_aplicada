@@ -252,12 +252,24 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button onClick={handleConfirmar} disabled={!selectedHour}>
-            Confirmar
-          </Button>
+        <Button
+          className="bg-red-500 hover:bg-red-600 text-white "
+          variant="outline"
+          onClick={onClose}
+        >
+          Cancelar
+        </Button>
+        <Button
+        onClick={handleConfirmar}
+        disabled={!selectedHour}
+        className={`bg-custom-blueGray text-white hover:bg-custom-blueGray ${
+          !selectedHour
+            ? "opacity-50 cursor-not-allowed"
+            : "hover:bg-opacity-80"
+        }`}
+      >
+        Confirmar
+      </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

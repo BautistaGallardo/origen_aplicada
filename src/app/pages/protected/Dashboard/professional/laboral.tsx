@@ -67,7 +67,7 @@ const WorkScheduleModal = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-custom-blueGray text-white hover:bg-opacity-80">
+        <Button className="w-full text-left px-4 py-2 bg-custom-orange text-center text-white rounded-md hover:bg-opacity-80">
           Configurar Jornada Laboral
         </Button>
       </DialogTrigger>
@@ -85,7 +85,7 @@ const WorkScheduleModal = () => {
                   onClick={() => toggleDay(day)}
                   className={`w-10 h-10 rounded-full ${
                     selectedDays.includes(day)
-                      ? "bg-custom-orange text-white"
+                      ? "bg-custom-blueGray text-white"
                       : "bg-custom-lightGray text-custom-blueGray"
                   }`}
                 >
@@ -155,7 +155,7 @@ const WorkScheduleModal = () => {
             Cancelar
           </Button>
           <Button
-            className="border border-custom-orange bg-white-300 text-custom-orange hover:bg-custom-orange hover:text-white transition duration-300"
+            className="border border-custom-blueGray bg-white-300 text-custom-blueGray hover:bg-custom-blueGray hover:text-white transition duration-300"
             onClick={handleSubmit}
           >
             Confirmar

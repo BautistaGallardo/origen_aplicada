@@ -42,13 +42,13 @@ const Modal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () =>
                 <div className="mt-6 flex justify-end space-x-4">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                        className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={onConfirm}
-                        className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                        className="px-4 py-2 text-white bg-custom-blueGray rounded hover:bg-custom-blueGray"
                     >
                         Confirmar
                     </button>

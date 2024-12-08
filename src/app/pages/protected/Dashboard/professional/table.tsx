@@ -321,7 +321,7 @@ const TurnoTable = ({
             </p>
             <div className="flex justify-end mt-4">
               <button
-                className="px-4 py-2 mr-2 text-white bg-gray-500 rounded-md"
+                className="px-4 py-2 mr-2 text-white bg-red-500 hover:bg-red-600 rounded-md"
                 onClick={handleModalClose}
               >
                 Cerrar
@@ -329,8 +329,8 @@ const TurnoTable = ({
               <button
                 className={`px-4 py-2 rounded-md ${
                   modalType === "confirm"
-                    ? "bg-green-500 text-white"
-                    : "bg-red-500 text-white"
+                    ? "bg-custom-blueGray text-white"
+                    : "bg-custom-blueGray text-white"
                 }`}
                 onClick={() =>
                   modalType === "confirm"
