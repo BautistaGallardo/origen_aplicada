@@ -7,10 +7,10 @@ import AboutUs from '@/components/landing/aboutUS'
 const LandingPage = () => {
   return (
     <main>
-        <div><Intro/></div>
-        <div><AboutUs/></div>
-        <div><Professionals/></div>
-        <div><Contact/></div>
+      <div><Intro/></div>
+      <div><AboutUs/></div>
+      <div><Professionals/></div>
+      <div><Contact/></div>
     </main>
     
   )

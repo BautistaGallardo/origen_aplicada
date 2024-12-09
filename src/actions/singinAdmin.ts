@@ -2,11 +2,11 @@ import { LoginPacienteSchema, LoginProfesionalSchema } from "@/libs/zod";
 import { signIn } from "next-auth/react";
 import { z } from "zod";
 
-export const loginAction = async (
+export const loginAdminAction = async (
     values: z.infer<typeof LoginPacienteSchema> | z.infer<typeof LoginProfesionalSchema>
 ) => {
     try {
-        const result = await signIn("user-login", {
+        const result = await signIn("admin-login", {
             email: values.email,
             password: values.password,
             redirect: false,

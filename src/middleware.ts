@@ -9,7 +9,9 @@ const publicRoutes = [
   '/',
   '/pages/protected/auth/login',
   '/pages/protected/auth/register',
-   '/pages/protected/auth/register-professional'
+   '/pages/protected/auth/register-professional',
+   '/pages/protected/auth/login-admin',
+   '/pages/protected/auth/register-admin'
 ];
 
 const patientRoutes = [

@@ -171,54 +171,56 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
         );
 
         return (
-            <div className=" h-full flex flex-col justify-between">
-                <Table className="w-full">
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Fecha</TableHead>
-                            <TableHead>Hora</TableHead>
-                            <TableHead>Profesional</TableHead>
-                            <TableHead>Especialidad</TableHead>
-                            <TableHead>Estado</TableHead>
-                            {showCancel && <TableHead>Cancelar Turno</TableHead>}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {currentData.length > 0 ? (
-                            currentData.map((reservacion) => (
-                                <TableRow key={reservacion.appointment_id}>
-                                    <TableCell>{new Date(reservacion.Appointment.date).toLocaleDateString()}</TableCell>
-                                    <TableCell>{reservacion.Appointment.hour}</TableCell>
-                                    <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
-                                    <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
-                                    <TableCell>{reservacion.state}</TableCell>
-                                    {showCancel && (
-                                        <TableCell>
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedReservacionId({
-                                                        patient_id: reservacion.patient_id,
-                                                        appointment_id: reservacion.appointment_id,
-                                                    });
-                                                    setModalOpen(true);
-                                                }}
-                                                className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
-                                            >
-                                                Cancelar
-                                            </button>
-                                        </TableCell>
-                                    )}
-                                </TableRow>
-                            ))
-                        ) : (
+            <div className="flex flex-col justify-between h-full">
+                <div className=" overflow-auto">
+                    <Table className="w-full">
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={6} className="text-center">
-                                    No hay datos disponibles
-                                </TableCell>
+                                <TableHead>Fecha</TableHead>
+                                <TableHead>Hora</TableHead>
+                                <TableHead>Profesional</TableHead>
+                                <TableHead>Especialidad</TableHead>
+                                <TableHead>Estado</TableHead>
+                                {showCancel && <TableHead>Cancelar Turno</TableHead>}
                             </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {currentData.length > 0 ? (
+                                currentData.map((reservacion) => (
+                                    <TableRow key={reservacion.appointment_id}>
+                                        <TableCell>{new Date(reservacion.Appointment.date).toLocaleDateString()}</TableCell>
+                                        <TableCell>{reservacion.Appointment.hour}</TableCell>
+                                        <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
+                                        <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>
+                                        <TableCell>{reservacion.state}</TableCell>
+                                        {showCancel && (
+                                            <TableCell>
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedReservacionId({
+                                                            patient_id: reservacion.patient_id,
+                                                            appointment_id: reservacion.appointment_id,
+                                                        });
+                                                        setModalOpen(true);
+                                                    }}
+                                                    className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                            </TableCell>
+                                        )}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center">
+                                        No hay datos disponibles
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
                 {/* Controles de paginación */}
                 <div className="flex justify-center mt-4">
                     <button
@@ -242,13 +244,13 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
     };
 
     return (
-        <div className=" h-5/6">
-            <div className=" h-2/4 m-1">
+        <div className="">
+            <div className=" h-2/4">
                 <h2 className="text-xl font-semibold mb-4">Próximos Turnos</h2>
                 {renderTable(proximosTurnos, proximosTurnosPage, setProximosTurnosPage, true)}
             </div>
 
-            <div className="h-2/4 m-1">
+            <div className="h-2/4">
                 <h2 className="text-xl font-semibold mt-8 mb-4">Historial de Turnos</h2>
                 {renderTable(historialTurnos, historialTurnosPage, setHistorialTurnosPage, false)}
             </div>

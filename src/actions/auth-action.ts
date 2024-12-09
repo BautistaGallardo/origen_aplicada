@@ -1,6 +1,6 @@
 'use server'
 import { z } from "zod";
-import { RegisterPacienteSchema, RegisterProfesionalSchema } from "@/libs/zod";
+import { RegisterPacienteSchema, RegisterProfesionalSchema, RegisterAdminSchema } from "@/libs/zod";
 import { db } from "@/libs/db";
 import { hash } from "bcryptjs";
 
@@ -127,4 +127,23 @@ export const registerProfessinalAction = async(values: z.infer<typeof RegisterPr
     } catch (error: any) {
         throw new Error(error.message || "Ocurrió un error inesperado");
     }
+}
+
+
+export const registerAdminAction = async(values: z.infer<typeof RegisterAdminSchema>) =>{
+
+    const existingAdmin = await db.adminUser.findUnique({
+        where: { email: values.email },
+    });
+
+    const hashedPassword = await hash(values.password, 10);
+
+    const newAdmin = await db.adminUser.create({
+        data: {
+            email: values.email,
+            password: hashedPassword,
+            name: values.name,
+        },
+    });
+
 }

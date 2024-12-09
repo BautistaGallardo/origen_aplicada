@@ -23,7 +23,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   Authenticator Authenticator[]
-  
+  state         Boolean        @default(true)
   // Relación con el sistema de citas
   TypeIdCard    TypeIdCard?
   patient      Patients?
@@ -92,11 +92,17 @@ model Authenticator {
 // Modelos del sistema de citas
 
 model AdminUser {
-  id              String          @id @default(cuid())
-  name            String
-  password        String
-  registration_date DateTime      @default(now())
+  id              String    @id @default(cuid())      
+  email           String    @unique                   
+  name            String                               
+  password        String                               
+  registration_date DateTime @default(now())          
+  createdAt       DateTime @default(now())            
+  updatedAt       DateTime @default(now())             
+
+  @@index([email])                                 
 }
+
 
 model TypeIdCard {
   id            String          @id @default(cuid()) 
@@ -111,6 +117,7 @@ model TypeIdCard {
 model Patients {
   id            String          @id @default(cuid()) 
   photo           String?
+  state         Boolean         @default(true)
   registration_date DateTime?    @default(now())
   userId          String    @unique
   User            User      @relation(fields: [userId], references: [id])
@@ -119,9 +126,10 @@ model Patients {
 }
 
 model Professional {
-  id            String          @id @default(cuid()) 
+  id              String          @id @default(cuid()) 
   specialty       String
-  photo           String?
+  photo           String?         
+  state           Boolean       @default(true)
   registration_date DateTime    @default(now())
   userId          String    @unique
   User            User      @relation(fields: [userId], references: [id])
@@ -130,7 +138,7 @@ model Professional {
 }
 
 model Observation {
-  id            String          @id @default(cuid()) 
+  id              String          @id @default(cuid()) 
   note            String
   professional_id String
   patient_id      String

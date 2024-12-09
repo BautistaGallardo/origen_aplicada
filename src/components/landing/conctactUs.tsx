@@ -1,10 +1,45 @@
 'use client';
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    message: '',
+  });
+  const [status, setStatus] = useState('');
+
+  const handleChange = (e: { target: { id: string; value: string } }) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    setStatus('Enviando...');
+    try {;
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus('¡Mensaje enviado correctamente!');
+        setFormData({ firstName: '', lastName: '', email: '', message: '' });
+      } else {
+        setStatus('Error al enviar el mensaje.');
+      }
+    } catch (error: any) {
+      console.error('Error:', error);
+      setStatus(error.message || 'Error al enviar el mensaje.');
+    }
+  };
+
   return (
     <div
       id="contact" // Agregamos el identificador para enlazar desde el menú
@@ -17,7 +52,7 @@ const Contact = () => {
             Todos los mensajes importan, esperamos el de usted.
           </p>
         </div>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="first-name" className="text-custom-blueGray">Nombre</Label>
@@ -40,6 +75,15 @@ const Contact = () => {
             Enviar
           </Button>
         </form>
+        {status && (
+          <p
+            className={`text-center mt-4 ${
+              status.includes('¡Mensaje enviado') ? 'text-green-500' : 'text-red-500'
+            }`}
+          >
+            {status}
+          </p>
+        )}
       </div>
     </div>
   );
