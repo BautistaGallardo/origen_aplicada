@@ -20,6 +20,52 @@ const DashboardProfessional = () => {
   const closeLogoutModal = () => setIsLogoutModalOpen(false);
   const handleTurnoCreated = () => setRefreshKey((prev) => prev + 1);
 
+
+  const [oldPassword, setOldPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [currentPassword, setCurrentPassword] = useState("")
+
+  const handlSubmit = async () => {
+    console.log('handlSubmit se está ejecutando');
+    
+    try {
+      if (!oldPassword || !newPassword || !currentPassword) {
+        console.log('Todos los campos deben completarse');
+        return 'Todos los campos deben completarse';
+      }
+  
+      if (newPassword !== currentPassword) {
+        console.log('Las contraseñas no coinciden');
+        return 'Las contraseñas no coinciden';
+      }
+  
+      const email = session?.user.email;
+  
+      if (!email) {
+        console.log("error a la hora de identificar el email del usuario");
+        return "error a la hora de identificar el email del usuario";
+      }
+  
+      const response = await fetch("/api/auth/changePassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+          email: email,
+        }),
+      });
+  
+      console.log('Respuesta de cambio de contraseña:', response.json()); // Esto debería imprimir la respuesta del servidor
+    } catch (error) {
+      console.error("Error interno:", error);
+      return "internal error";
+    }
+  }
+
+
   return (
     <div className="min-h-screen flex bg-custom-lightGray text-custom-blueGray">
       {/* Sidebar */}
@@ -120,6 +166,7 @@ const DashboardProfessional = () => {
                   type="password"
                   id="currentPassword"
                   className="w-full px-3 py-2 border rounded-md"
+                  onChange={(e) => setOldPassword(e.target.value)}
                 />
               </div>
               <div>
@@ -133,6 +180,7 @@ const DashboardProfessional = () => {
                   type="password"
                   id="newPassword"
                   className="w-full px-3 py-2 border rounded-md"
+                  onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div>
@@ -146,6 +194,7 @@ const DashboardProfessional = () => {
                   type="password"
                   id="confirmPassword"
                   className="w-full px-3 py-2 border rounded-md"
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                 />
               </div>
             </form>
@@ -159,6 +208,7 @@ const DashboardProfessional = () => {
               <button
                 onClick={() => {
                   // Implementar lógica de cambio de contraseña aquí
+                  handlSubmit()
                   closeChangePasswordModal();
                 }}
                 className="px-4 py-2 bg-custom-blueGray text-white rounded-md hover:bg-opacity-80"

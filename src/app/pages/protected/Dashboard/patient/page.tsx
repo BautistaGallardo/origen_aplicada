@@ -1,5 +1,5 @@
 "use client";
-
+import { ChangePassword } from "@/actions/changePassword";
 import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import TurnoTable from "./table";
@@ -17,6 +17,10 @@ const DashboardPatient = () => {
     "dashboard"
   );
 
+  const [oldPassword, setOldPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [currentPassword, setCurrentPassword] = useState("")
+  
   // Estado para refrescar la tabla
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -34,6 +38,48 @@ const DashboardPatient = () => {
     setRefreshKey((prev) => prev + 1);
     closeTurnoModal();
   };
+
+
+  const handlSubmit = async () => {
+    console.log('handlSubmit se está ejecutando');
+    
+    try {
+      if (!oldPassword || !newPassword || !currentPassword) {
+        console.log('Todos los campos deben completarse');
+        return 'Todos los campos deben completarse';
+      }
+  
+      if (newPassword !== currentPassword) {
+        console.log('Las contraseñas no coinciden');
+        return 'Las contraseñas no coinciden';
+      }
+  
+      const email = session?.user.email;
+  
+      if (!email) {
+        console.log("error a la hora de identificar el email del usuario");
+        return "error a la hora de identificar el email del usuario";
+      }
+  
+      const response = await fetch("/api/auth/changePassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+          email: email,
+        }),
+      });
+  
+      console.log('Respuesta de cambio de contraseña:', response.json()); // Esto debería imprimir la respuesta del servidor
+    } catch (error) {
+      console.error("Error interno:", error);
+      return "internal error";
+    }
+  }
+  
 
   return (
     <div className="min-h-screen flex bg-custom-lightGray text-custom-blueGray">
@@ -107,7 +153,7 @@ const DashboardPatient = () => {
           </div>
         )}
         {currentView === "historial" && (
-          <div className="h-full">
+          <div className=" h-full">
             <h2 className="text-2xl font-bold mb-4">Historial de Turnos</h2>
             <TurnoTable refreshKey={refreshKey} />
           </div>
@@ -140,6 +186,7 @@ const DashboardPatient = () => {
                   type="password"
                   id="currentPassword"
                   className="w-full px-3 py-2 border rounded-md"
+                  onChange={(e) => setOldPassword(e.target.value)}
                 />
               </div>
               <div>
@@ -153,6 +200,7 @@ const DashboardPatient = () => {
                   type="password"
                   id="newPassword"
                   className="w-full px-3 py-2 border rounded-md"
+                  onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div>
@@ -166,6 +214,7 @@ const DashboardPatient = () => {
                   type="password"
                   id="confirmPassword"
                   className="w-full px-3 py-2 border rounded-md"
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                 />
               </div>
             </form>
@@ -179,6 +228,7 @@ const DashboardPatient = () => {
               <button
                 onClick={() => {
                   // Implementar lógica de cambio de contraseña aquí
+                  handlSubmit()
                   closeChangePasswordModal();
                 }}
                 className="px-4 py-2 bg-custom-blueGray text-white rounded-md hover:bg-opacity-80"
