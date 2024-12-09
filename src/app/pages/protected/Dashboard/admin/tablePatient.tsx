@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import {
     Table,
     TableHeader,
@@ -9,33 +8,38 @@ import {
     TableCell,
 } from "@/components/ui/table";
 
-interface User{ 
-    email: string
-    lastName: string
-    name: string
-    phone_number: string
-    state: boolean
+interface TypeIdCard {
+    id_number: string;
 }
 
-interface Profesional{
-    id:string
-    User: User
-    state: boolean
-    specialty: string
-    registration_date: Date
+interface User {
+    id: string;
+    email: string;
+    lastName: string;
+    name: string;
+    phone_number: string;
+    state: boolean;
+    TypeIdCard: TypeIdCard;
 }
 
-interface Patient{
-    id: string
-    name: string
-    lastName: string
-    email: string
-    state: string
-    phone_number:string
-    registration_date: Date
+interface Patient {
+    id: string;
+    User: User;
+    state: string;
+    registration_date: Date;
 }
 
-const Modal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: () => void }) => {
+const Modal = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    isLoading,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    isLoading: boolean;
+}) => {
     if (!isOpen) return null;
 
     return (
@@ -47,14 +51,18 @@ const Modal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () =>
                     <button
                         onClick={onClose}
                         className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                        disabled={isLoading}
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={onConfirm}
-                        className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+                        className={`px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600 ${
+                            isLoading ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                        disabled={isLoading}
                     >
-                        Borrar
+                        {isLoading ? "Procesando..." : "Borrar"}
                     </button>
                 </div>
             </div>
@@ -62,28 +70,86 @@ const Modal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () =>
     );
 };
 
-const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
-    const [profesionales, setProfesionales] = useState<Profesional[]>([]);
+const TurnoTable = ({
+    refreshKey,
+    onTurnoCreated,
+}: {
+    refreshKey: number;
+    onTurnoCreated: () => void;
+}) => {
+    const [profesionales, setProfesionales] = useState<Patient[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
+    const deleteRole = "patient";
+
+    const cancelarTurno = async (id: string) => {
+        setIsLoading(true);
+        try {
+            setProfesionales((prev) =>
+                prev.map((reservacion) =>
+                    reservacion.id === id
+                        ? { ...reservacion, state: "cancelado" }
+                        : reservacion
+                )
+            );
+
+            const response = await fetch("http://localhost:3000/api/AdminApi/DeleteRole", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id, deleteRole }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Error al cancelar el turno");
+            }
+
+            onTurnoCreated(); // Actualiza el refreshKey después de eliminar
+            setModalOpen(false);
+        } catch (err: any) {
+            console.error("Error al cancelar el turno:", err);
+
+            setProfesionales((prev) =>
+                prev.map((reservacion) =>
+                    reservacion.id === id
+                        ? { ...reservacion, state: "pendiente" }
+                        : reservacion
+                )
+            );
+
+            setError(err.message || "Error desconocido");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         const fetchProfesionales = async () => {
+            setLoading(true);
+            setError(null);
             try {
-                const response = await fetch("/api/AdminApi/getProfessionals");
-
-                console.log(response)
+                const response = await fetch("/api/AdminApi/getPatients");
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || "Error al cargar los datos");
                 }
                 const data = await response.json();
-                console.log("Datos de profesionales:", data); // Debugging
-                setProfesionales(Array.isArray(data) ? data : []); // Asegurar que sea un arreglo
+
+                const validData = data.map((patient: Patient) => ({
+                    ...patient,
+                    User: {
+                        ...patient.User,
+                        TypeIdCard: patient.User.TypeIdCard || { id_number: "N/A" },
+                    },
+                }));
+                setProfesionales(validData);
             } catch (err: any) {
                 setError(err.message || "Error desconocido");
             } finally {
@@ -94,12 +160,10 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
         fetchProfesionales();
     }, [refreshKey]);
 
-    const paginatedData = Array.isArray(profesionales)
-        ? profesionales.slice(
-            (currentPage - 1) * itemsPerPage,
-            currentPage * itemsPerPage
-        )
-        : [];
+    const paginatedData = profesionales.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     if (loading) return <div>Cargando...</div>;
     if (error) return <div className="text-red-500">Error: {error}</div>;
@@ -110,7 +174,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                 <TableHeader>
                     <TableRow>
                         <TableHead>Nombre</TableHead>
-                        <TableHead>Especialidad</TableHead>
+                        <TableHead>DNI</TableHead>
                         <TableHead>Teléfono</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead>Acción</TableHead>
@@ -120,7 +184,7 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                     {paginatedData.map((profesional) => (
                         <TableRow key={profesional.id}>
                             <TableCell>{`${profesional.User.name} ${profesional.User.lastName}`}</TableCell>
-                            <TableCell>{profesional.specialty}</TableCell>
+                            <TableCell>{profesional.User.TypeIdCard.id_number}</TableCell>
                             <TableCell>{profesional.User.phone_number}</TableCell>
                             <TableCell>{profesional.state ? "Activo" : "Inactivo"}</TableCell>
                             <TableCell>
@@ -138,25 +202,35 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                     ))}
                 </TableBody>
             </Table>
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-4 space-x-4">
                 <button
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
                 >
                     Anterior
                 </button>
-                <span className="mx-2">{currentPage}</span>
+                <span className="px-4 py-2">{currentPage}</span>
                 <button
                     disabled={currentPage * itemsPerPage >= profesionales.length}
                     onClick={() => setCurrentPage((prev) => prev + 1)}
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
                 >
                     Siguiente
                 </button>
             </div>
-            <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} onConfirm={() => {}} />
+            <Modal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onConfirm={async () => {
+                    if (selectedProfessionalId) {
+                        await cancelarTurno(selectedProfessionalId);
+                    }
+                }}
+                isLoading={isLoading}
+            />
         </div>
     );
 };
 
 export default TurnoTable;
-

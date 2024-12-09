@@ -14,12 +14,11 @@ export default async function POST(req: NextRequest) {
         const user = await db.user.create({
             data: {
                 name: data.name,
-                lastname: data.lastname,
+                lastName: data.lastname,
                 email: data.email,
                 password: hashedPassword, 
                 phone_number: data.phone_number,
                 date_of_birth: data.date_of_birth,
-                photo: data.photo,
             },
         });
 

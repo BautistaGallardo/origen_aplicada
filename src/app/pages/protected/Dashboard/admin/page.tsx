@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import TurnoTable from "./table";
+import TurnoTableProfessional from "./tableProfessional";
+import TurnoPatient from "./tablePatient"
+
 import TurnoModal from "./reservation";
 
 const DashboardAdmin = () => {
@@ -9,7 +11,7 @@ const DashboardAdmin = () => {
   const isAuthenticated = status === "authenticated";
 
   const [isTurnoModalOpen, setIsTurnoModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<"dashboard" | "historial">(
+  const [currentView, setCurrentView] = useState<"dashboard" | "historialProfessional"| "historialPatient">(
     "dashboard"
   );
 
@@ -58,18 +60,18 @@ const DashboardAdmin = () => {
             </li>
             <li>
               <button
-                onClick={() => setCurrentView("historial")}
+                onClick={() => setCurrentView("historialPatient")}
                 className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-center"
               >
-                Profesionales
+                Pacientes
               </button>
             </li>
             <li>
               <button
-                onClick={() => setCurrentView("historial")}
+                onClick={() => setCurrentView("historialProfessional")}
                 className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-center"
               >
-                Pacientes
+                Profesionales
               </button>
             </li>
             <li>
@@ -96,9 +98,14 @@ const DashboardAdmin = () => {
             </p>
           </div>
         )}
-        {currentView === "historial" && (
+        {currentView === "historialProfessional" && (
           <div className=" h-full">
-            <TurnoTable refreshKey={refreshKey} />
+            <TurnoTableProfessional refreshKey={refreshKey} onTurnoCreated={handleTurnoCreated}/>
+          </div>
+        )}
+        {currentView === "historialPatient" && (
+          <div className=" h-full">
+            <TurnoTableProfessional refreshKey={refreshKey} onTurnoCreated={handleTurnoCreated}/>
           </div>
         )}
       </main>

@@ -5,17 +5,17 @@ export async function PUT(req: NextRequest) {
     try {
         const body = await req.json();
 
-        if (!body.email || !body.deleteRole) {
+        if (!body.id || !body.deleteRole) {
             return NextResponse.json(
                 { error: "Request body must contain 'email' and 'deleteRole'" },
                 { status: 400 }
             );
         }
 
-        const { email, deleteRole } = body;
+        const { id, deleteRole } = body;
 
         const user = await db.user.findUnique({
-            where: { email },
+            where: { id },
             select: {
                 id: true,
                 patient: true,
