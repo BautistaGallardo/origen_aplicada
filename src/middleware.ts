@@ -1,17 +1,13 @@
-import NextAuth from "next-auth";
-import authConfig from "@/libs/auth.config";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-
-const { auth: middleware } = NextAuth(authConfig);
 
 const publicRoutes = [
   '/',
   '/pages/protected/auth/login',
   '/pages/protected/auth/register',
-   '/pages/protected/auth/register-professional',
-   '/pages/protected/auth/login-admin',
-   '/pages/protected/auth/register-admin'
+  '/pages/protected/auth/register-professional',
+  '/pages/protected/auth/login-admin',
+  '/pages/protected/auth/register-admin',
 ];
 
 const patientRoutes = [
@@ -27,53 +23,38 @@ const adminRoutes = [
   '/pages/protected/Dashboard/admin',
 ];
 
-const Select_Professional_or_Patient = [
+const selectProfessionalOrPatientRoutes = [
   '/pages/protected/auth/select-professional-or-patient',
 ];
 
-export default middleware(async (req) => {
+export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
 
   // Obtén el token de sesión
   const token = await getToken({ req, secret: process.env.AUTH_SECRET });
   const isLoggedIn = !!token;
 
-  console.log(
-    "Token role:",
-    token?.role || "No token"
-  );
+  console.log("Token role:", token?.role || "No token");
 
   const response = NextResponse.next();
 
-  // Configura encabezados para evitar que el navegador almacene en cache
+  // Configura encabezados para evitar almacenamiento en cache
   response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   response.headers.set("Pragma", "no-cache");
   response.headers.set("Expires", "0");
 
-  // Rutas públicas: solo para no logueados
+  // Manejo de rutas públicas: solo para usuarios no logueados
   if (publicRoutes.includes(nextUrl.pathname)) {
     if (isLoggedIn) {
-      // Redirigir logueados al dashboard según su rol
       switch (token.role) {
         case "Patient":
-          return NextResponse.redirect(
-            new URL("/pages/protected/Dashboard/patient", nextUrl)
-          );
+          return NextResponse.redirect(new URL("/pages/protected/Dashboard/patient", nextUrl));
         case "Professional":
-          return NextResponse.redirect(
-            new URL("/pages/protected/Dashboard/professional", nextUrl)
-          );
+          return NextResponse.redirect(new URL("/pages/protected/Dashboard/professional", nextUrl));
         case "Admin":
-          return NextResponse.redirect(
-            new URL("/pages/protected/Dashboard/admin", nextUrl)
-          );
+          return NextResponse.redirect(new URL("/pages/protected/Dashboard/admin", nextUrl));
         case "Patient and Professional":
-          return NextResponse.redirect(
-            new URL(
-              "/pages/protected/auth/select-professional-or-patient",
-              nextUrl
-            )
-          );
+          return NextResponse.redirect(new URL("/pages/protected/auth/select-professional-or-patient", nextUrl));
         default:
           break;
       }
@@ -81,55 +62,31 @@ export default middleware(async (req) => {
     return response;
   }
 
-  // Verifica acceso a rutas específicas según el rol
+  // Manejo de rutas según roles específicos
   if (isLoggedIn) {
     if (token.role === "Patient" && !patientRoutes.includes(nextUrl.pathname)) {
-      return NextResponse.redirect(
-        new URL("/pages/protected/Dashboard/patient", nextUrl)
-      );
+      return NextResponse.redirect(new URL("/pages/protected/Dashboard/patient", nextUrl));
     }
-    if (
-      token.role === "Professional" &&
-      !professionalRoutes.includes(nextUrl.pathname)
-    ) {
-      return NextResponse.redirect(
-        new URL("/pages/protected/Dashboard/professional", nextUrl)
-      );
+    if (token.role === "Professional" && !professionalRoutes.includes(nextUrl.pathname)) {
+      return NextResponse.redirect(new URL("/pages/protected/Dashboard/professional", nextUrl));
     }
-    if (
-      token.role === "Admin" &&
-      !adminRoutes.includes(nextUrl.pathname)
-    ) {
-      return NextResponse.redirect(
-        new URL("/pages/protected/Dashboard/admin", nextUrl)
-      );
+    if (token.role === "Admin" && !adminRoutes.includes(nextUrl.pathname)) {
+      return NextResponse.redirect(new URL("/pages/protected/Dashboard/admin", nextUrl));
     }
-    if (
-      token.role === "Patient and Professional" &&
-      !Select_Professional_or_Patient.includes(nextUrl.pathname)
-    ) {
-      return NextResponse.redirect(
-        new URL(
-          "/pages/protected/auth/select-professional-or-patient",
-          nextUrl
-        )
-      );
+    if (token.role === "Patient and Professional" && !selectProfessionalOrPatientRoutes.includes(nextUrl.pathname)) {
+      return NextResponse.redirect(new URL("/pages/protected/auth/select-professional-or-patient", nextUrl));
     }
   }
 
-  // Si no hay sesión y la ruta no es pública, redirige al login
+  // Si no está logueado y no es una ruta pública, redirige al login
   if (!isLoggedIn) {
-    return NextResponse.redirect(
-      new URL("/pages/protected/auth/login", nextUrl)
-    );
+    return NextResponse.redirect(new URL("/pages/protected/auth/login", nextUrl));
   }
 
-  // Si pasa todas las verificaciones, continúa
+  // Permitir el acceso si pasa todas las verificaciones
   return response;
-});
+}
 
 export const config = {
-  matcher: [
-    "/page/protected/:path*", 
-  ],
+  matcher: ["/pages/protected/:path*"],
 };
