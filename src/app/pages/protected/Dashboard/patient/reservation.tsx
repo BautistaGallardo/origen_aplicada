@@ -17,7 +17,6 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { useSession } from "next-auth/react";
 import { format, startOfDay, isBefore } from "date-fns";
-import { Value } from "@radix-ui/react-select";
 
 type Profesional = {
   id: string;

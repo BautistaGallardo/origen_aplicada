@@ -10,7 +10,7 @@ import { db } from "@/libs/db";
 //   como realizada.
 
 
-export default async function POST(req: NextRequest) {
+export  async function POST(req: NextRequest) {
     try {
         const data = await req.json();
 
