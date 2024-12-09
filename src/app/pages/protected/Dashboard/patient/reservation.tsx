@@ -105,19 +105,19 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
 
   const handleConfirmar = async () => {
     if (selectedProfessional && selectedDate && selectedHour) {
-      // Dividir la hora en horas y minutos
-      const id = selectedHour.id
+      const id = selectedHour.id;
       const [hour, minute] = selectedHour.hour.split(":");
-      const formattedHour = hour.padStart(2, "0"); // Asegurar dos dígitos para la hora
-      const formattedMinute = minute.padStart(2, "0"); // Asegurar dos dígitos para los minutos
+      const formattedHour = hour.padStart(2, "0");
+      const formattedMinute = minute.padStart(2, "0");
   
-      const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const dateTime = `${dateStr}T${formattedHour}:${formattedMinute}:00`; // Formato ISO 8601
+      // La fecha ya está en UTC, combinarla con la hora
+      const dateStr = format(selectedDate, "yyyy-MM-dd"); // selectedDate ya está en UTC
+      const dateTime = `${dateStr}T${formattedHour}:${formattedMinute}:00Z`; // Agregar 'Z' para UTC
   
       const payload = {
         appointment_id: id,
         email, // Cambiar por el ID real del paciente logueado
-        date: dateTime, // Fecha y hora combinadas
+        date: dateTime, // Fecha y hora en UTC
         state: "pendiente", // Estado inicial
       };
   
@@ -136,7 +136,7 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
   
         if (response.ok) {
           console.log("Reserva creada exitosamente:", data);
-          onTurnoCreated()
+          onTurnoCreated();
           onClose(); // Cerrar el modal
         } else {
           console.error("Error al crear la reserva:", data.error);
@@ -150,7 +150,6 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
       console.error("Faltan datos para confirmar la reserva.");
     }
   };
-  
   
   
 
@@ -218,11 +217,23 @@ const TurnoModal = ({ isOpen, onClose, onTurnoCreated }: { isOpen: boolean; onCl
             <label className="block mb-2 font-medium">Selecciona una fecha</label>
             <Calendar
               mode="single"
-              selected={selectedDate || undefined}
-              onSelect={(date) => setSelectedDate(date || null)}
-              disabled={(date) =>
-                !selectedEspecialidad || !selectedProfessional || isBefore(date, startOfDay(new Date()))
-              }
+              selected={selectedDate ? startOfDay(selectedDate) : undefined}
+              onSelect={(date) => {
+                const normalizedDate = date ? startOfDay(date) : null;
+                console.log("Date Selected:", date);
+                console.log("Normalized Date:", normalizedDate);
+                setSelectedDate(normalizedDate);
+              }}
+              disabled={(date) => {
+                const dayOfWeek = date.getDay();
+                return (
+                  !selectedEspecialidad ||
+                  !selectedProfessional ||
+                  isBefore(startOfDay(date), startOfDay(new Date())) ||
+                  dayOfWeek === 0 || // Domingos
+                  dayOfWeek === 6    // Sábados
+                );
+              }}
             />
             {!selectedEspecialidad || !selectedProfessional && (
               <p className="text-sm">Selecciona una especialidad y un profesional para habilitar el calendario.</p>

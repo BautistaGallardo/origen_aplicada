@@ -31,8 +31,22 @@ const WorkScheduleModal = () => {
 
   const handleSubmit = async () => {
     try {
-      const fechaInicio = new Date(startDate);
-      const fechaFin = new Date(endDate);
+      // Convertir cadenas de fechas a objetos Date
+      const fechaInicio = new Date(`${startDate}T00:00:00`); // Aseguramos inicio del día
+      const fechaFin = new Date(`${endDate}T23:59:59`); // Aseguramos fin del día
+  
+      // Validar que las fechas sean correctas
+      if (isNaN(fechaInicio.getTime()) || isNaN(fechaFin.getTime())) {
+        alert("Por favor, selecciona fechas válidas.");
+        return;
+      }
+  
+      // Validar rango de fechas
+      if (fechaInicio > fechaFin) {
+        alert("La fecha de inicio no puede ser mayor que la fecha de fin.");
+        return;
+      }
+  
       const intervaloMinutos = parseInt(shiftTime, 10);
       const horaInicio = parseInt(startTime, 10);
       const horaFin = parseInt(endTime, 10);
@@ -57,6 +71,7 @@ const WorkScheduleModal = () => {
       if (!response) {
         throw new Error("Error al generar intervalos");
       }
+  
       setIsOpen(false);
       // setResult(response); // Actualizar el estado con el resultado
     } catch (error) {
