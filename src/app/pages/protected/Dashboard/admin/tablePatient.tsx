@@ -46,7 +46,7 @@ const Modal = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-96">
                 <h2 className="text-lg font-semibold">¿Está seguro?</h2>
-                <p className="mt-4">¿Desea cancelar este turno?</p>
+                <p className="mt-4">¿Desea desactivar la cuenta?</p>
                 <div className="mt-6 flex justify-end space-x-4">
                     <button
                         onClick={onClose}

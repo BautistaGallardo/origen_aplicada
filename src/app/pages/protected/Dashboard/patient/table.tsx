@@ -188,7 +188,11 @@ const TurnoTable = ({ refreshKey }: { refreshKey: number }) => {
                             {currentData.length > 0 ? (
                                 currentData.map((reservacion) => (
                                     <TableRow key={reservacion.appointment_id}>
-                                        <TableCell>{new Date(reservacion.Appointment.date).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                        {new Date(reservacion.Appointment.date).toLocaleDateString("es-ES", {
+                                            timeZone: "UTC",
+                                        })}
+                                        </TableCell>                                        
                                         <TableCell>{reservacion.Appointment.hour}</TableCell>
                                         <TableCell>{`${reservacion.Appointment.Professional.User.name} ${reservacion.Appointment.Professional.User.lastName}`}</TableCell>
                                         <TableCell>{reservacion.Appointment.Professional.specialty}</TableCell>

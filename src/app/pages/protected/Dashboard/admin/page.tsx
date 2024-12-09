@@ -93,7 +93,7 @@ const DashboardAdmin = () => {
         {currentView === "dashboard" && (
           <div>
             <h2 className="text-2xl font-bold">
-              Bienvenido al Dashboard de Admin
+              Bienvenido al Dashboard de Administrador
             </h2>
             <p className="text-custom-blueGray">
               Aquí puedes gestionar los distintos usuarios de la aplicación.
