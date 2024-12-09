@@ -92,7 +92,7 @@ const TurnoTable = ({
         try {
             setProfesionales((prev) =>
                 prev.map((reservacion) =>
-                    reservacion.id === id
+                    reservacion.User.id === id
                         ? { ...reservacion, state: "cancelado" }
                         : reservacion
                 )
@@ -118,7 +118,7 @@ const TurnoTable = ({
 
             setProfesionales((prev) =>
                 prev.map((reservacion) =>
-                    reservacion.id === id
+                    reservacion.User.id === id
                         ? { ...reservacion, state: "pendiente" }
                         : reservacion
                 )
@@ -190,7 +190,7 @@ const TurnoTable = ({
                             <TableCell>
                                 <button
                                     onClick={() => {
-                                        setSelectedProfessionalId(profesional.id);
+                                        setSelectedProfessionalId(profesional.User.id);
                                         setModalOpen(true);
                                     }}
                                     className="bg-red-500 text-white px-4 py-2 rounded"

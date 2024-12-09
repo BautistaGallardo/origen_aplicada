@@ -6,7 +6,7 @@ import { RegisterAdminSchema } from '@/libs/zod'
 const handleSubmit = () => {
   const values: RegisterAdminSchema = {
     name: 'admin',
-    email: 'bautistaggallardo@gmail.com',
+    email: 'admin@gmail.com',
     password: 'admin',
   }
   const res = registerAdminAction(values)

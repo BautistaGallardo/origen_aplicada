@@ -85,7 +85,7 @@ const TurnoTable = ({
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-    const deleteRole = "patient";
+    const deleteRole = "professional";
 
     const cancelarTurno = async (id: string) => {
         setIsLoading(true);
@@ -135,7 +135,7 @@ const TurnoTable = ({
             setLoading(true);
             setError(null);
             try {
-                const response = await fetch("/api/AdminApi/getPatients");
+                const response = await fetch("/api/AdminApi/getProfessionals");
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || "Error al cargar los datos");
