@@ -130,6 +130,6 @@ export default middleware(async (req) => {
 
 export const config = {
   matcher: [
-    "/pages/protected/:path*", 
+    "/protected/:path*", 
   ],
 };
