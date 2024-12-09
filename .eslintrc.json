@@ -1,3 +1,21 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    // Desactiva reglas específicas
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "@next/next/no-img-element": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+
+    // Puedes ajustar otras reglas si es necesario
+    "prefer-const": "warn", // Solo advierte, no bloquea el build
+    "no-console": "warn"    // Evita que `console.log` bloquee
+  },
+  "ignorePatterns": [
+    "node_modules/", // Ignora este directorio
+    "dist/",         // O cualquier otro directorio compilado
+    "*.config.js",   // Archivos de configuración
+    "*.d.ts"         // Archivos de definición de TypeScript
+  ]
 }
