@@ -46,7 +46,7 @@ const Modal = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-96">
                 <h2 className="text-lg font-semibold">¿Está seguro?</h2>
-                <p className="mt-4">¿Desea cancelar este turno?</p>
+                <p className="mt-4">¿Desea desactivar la cuenta?</p>
                 <div className="mt-6 flex justify-end space-x-4">
                     <button
                         onClick={onClose}
@@ -85,45 +85,36 @@ const TurnoTable = ({
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
-    const deleteRole = "professional";
 
-    const cancelarTurno = async (id: string) => {
+    const handleAction = async (id: string, action: "activate" | "deactivate") => {
         setIsLoading(true);
         try {
+            // Actualiza el estado localmente para un mejor feedback visual
             setProfesionales((prev) =>
-                prev.map((reservacion) =>
-                    reservacion.id === id
-                        ? { ...reservacion, state: "cancelado" }
-                        : reservacion
+                prev.map((profesional) =>
+                    profesional.id === id
+                        ? { ...profesional, state: action === "activate" ? "activo" : "inactivo" }
+                        : profesional
                 )
             );
 
-            const response = await fetch("http://localhost:3000/api/AdminApi/DeleteRole", {
+            const response = await fetch("http://localhost:3000/api/AdminApi/ReactivateRole", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ id, deleteRole }),
+                body: JSON.stringify({ id, action, role: "professional" }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Error al cancelar el turno");
+                throw new Error(errorData.error || "Error al actualizar el estado");
             }
 
-            onTurnoCreated(); // Actualiza el refreshKey después de eliminar
+            onTurnoCreated(); // Refresca la tabla después de la acción
             setModalOpen(false);
         } catch (err: any) {
-            console.error("Error al cancelar el turno:", err);
-
-            setProfesionales((prev) =>
-                prev.map((reservacion) =>
-                    reservacion.id === id
-                        ? { ...reservacion, state: "pendiente" }
-                        : reservacion
-                )
-            );
-
+            console.error("Error al actualizar el estado:", err);
             setError(err.message || "Error desconocido");
         } finally {
             setIsLoading(false);
@@ -188,15 +179,26 @@ const TurnoTable = ({
                             <TableCell>{profesional.User.phone_number}</TableCell>
                             <TableCell>{profesional.state ? "Activo" : "Inactivo"}</TableCell>
                             <TableCell>
-                                <button
-                                    onClick={() => {
-                                        setSelectedProfessionalId(profesional.User.id);
-                                        setModalOpen(true);
-                                    }}
-                                    className="bg-red-500 text-white px-4 py-2 rounded"
-                                >
-                                    Borrar
-                                </button>
+                                {profesional.state ? (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedProfessionalId(profesional.User.id);
+                                            setModalOpen(true);
+                                        }}
+                                        className="bg-red-500 text-white px-4 py-2 rounded"
+                                    >
+                                        Borrar
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={async () =>
+                                            await handleAction(profesional.User.id, "activate")
+                                        }
+                                        className="bg-green-500 text-white px-4 py-2 rounded"
+                                    >
+                                        Reactivar
+                                    </button>
+                                )}
                             </TableCell>
                         </TableRow>
                     ))}
@@ -224,7 +226,7 @@ const TurnoTable = ({
                 onClose={() => setModalOpen(false)}
                 onConfirm={async () => {
                     if (selectedProfessionalId) {
-                        await cancelarTurno(selectedProfessionalId);
+                        await handleAction(selectedProfessionalId, "deactivate");
                     }
                 }}
                 isLoading={isLoading}
