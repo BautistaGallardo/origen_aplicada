@@ -3,28 +3,28 @@ import { getToken } from "next-auth/jwt";
 
 const publicRoutes = [
   '/',
-  '/protected/auth/login',
-  '/protected/auth/register',
-  '/protected/auth/register-professional',
-  '/protected/auth/login-admin',
-  '/protected/auth/register-admin',
+  '/pages/protected/auth/login',
+  '/pages/protected/auth/register',
+  '/pages/protected/auth/register-professional',
+  '/pages/protected/auth/login-admin',
+  '/pages/protected/auth/register-admin',
 ];
 
 const patientRoutes = [
-  '/protected/Dashboard/patient',
-  '/protected/calendar',
+  '/pages/protected/Dashboard/patient',
+  '/pages/protected/calendar',
 ];
 
 const professionalRoutes = [
-  '/protected/Dashboard/professional',
+  '/pages/protected/Dashboard/professional',
 ];
 
 const adminRoutes = [
-  '/protected/Dashboard/admin',
+  '/pages/protected/Dashboard/admin',
 ];
 
 const selectProfessionalOrPatientRoutes = [
-  '/protected/auth/select-professional-or-patient',
+  '/pages/protected/auth/select-professional-or-patient',
 ];
 
 export async function middleware(req: NextRequest) {
@@ -48,13 +48,13 @@ export async function middleware(req: NextRequest) {
     if (isLoggedIn) {
       switch (token.role) {
         case "Patient":
-          return NextResponse.redirect(new URL("/protected/Dashboard/patient", nextUrl));
+          return NextResponse.redirect(new URL("/pages/protected/Dashboard/patient", nextUrl));
         case "Professional":
-          return NextResponse.redirect(new URL("/protected/Dashboard/professional", nextUrl));
+          return NextResponse.redirect(new URL("/pages/protected/Dashboard/professional", nextUrl));
         case "Admin":
-          return NextResponse.redirect(new URL("/protected/Dashboard/admin", nextUrl));
+          return NextResponse.redirect(new URL("/pages/protected/Dashboard/admin", nextUrl));
         case "Patient and Professional":
-          return NextResponse.redirect(new URL("/protected/auth/select-professional-or-patient", nextUrl));
+          return NextResponse.redirect(new URL("/pages/protected/auth/select-professional-or-patient", nextUrl));
         default:
           break;
       }
@@ -65,22 +65,22 @@ export async function middleware(req: NextRequest) {
   // Manejo de rutas según roles específicos
   if (isLoggedIn) {
     if (token.role === "Patient" && !patientRoutes.includes(nextUrl.pathname)) {
-      return NextResponse.redirect(new URL("/protected/Dashboard/patient", nextUrl));
+      return NextResponse.redirect(new URL("/pages/protected/Dashboard/patient", nextUrl));
     }
     if (token.role === "Professional" && !professionalRoutes.includes(nextUrl.pathname)) {
-      return NextResponse.redirect(new URL("/protected/Dashboard/professional", nextUrl));
+      return NextResponse.redirect(new URL("/pages/protected/Dashboard/professional", nextUrl));
     }
     if (token.role === "Admin" && !adminRoutes.includes(nextUrl.pathname)) {
-      return NextResponse.redirect(new URL("/protected/Dashboard/admin", nextUrl));
+      return NextResponse.redirect(new URL("/pages/protected/Dashboard/admin", nextUrl));
     }
     if (token.role === "Patient and Professional" && !selectProfessionalOrPatientRoutes.includes(nextUrl.pathname)) {
-      return NextResponse.redirect(new URL("/protected/auth/select-professional-or-patient", nextUrl));
+      return NextResponse.redirect(new URL("/pages/protected/auth/select-professional-or-patient", nextUrl));
     }
   }
 
   // Si no está logueado y no es una ruta pública, redirige al login
   if (!isLoggedIn) {
-    return NextResponse.redirect(new URL("/protected/auth/login", nextUrl));
+    return NextResponse.redirect(new URL("/pages/protected/auth/login", nextUrl));
   }
 
   // Permitir el acceso si pasa todas las verificaciones
@@ -88,5 +88,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/protected/:path*"],
+  matcher: ["/pages/protected/:path*"],
 };
