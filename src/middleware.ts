@@ -7,28 +7,28 @@ const { auth: middleware } = NextAuth(authConfig);
 
 const publicRoutes = [
   '/',
-  '/protected/auth/login',
-  '/protected/auth/register',
-   '/protected/auth/register-professional',
-   '/protected/auth/login-admin',
-   '/protected/auth/register-admin'
+  '/auth/login',
+  '/auth/register',
+   '/auth/register-professional',
+   '/auth/login-admin',
+   '/auth/register-admin'
 ];
 
 const patientRoutes = [
-  '/protected/Dashboard/patient',
-  '/protected/calendar',
+  '/Dashboard/patient',
+  '/calendar',
 ];
 
 const professionalRoutes = [
-  '/protected/Dashboard/professional',
+  '/Dashboard/professional',
 ];
 
 const adminRoutes = [
-  '/protected/Dashboard/admin',
+  '/Dashboard/admin',
 ];
 
 const Select_Professional_or_Patient = [
-  '/protected/auth/select-professional-or-patient',
+  '/auth/select-professional-or-patient',
 ];
 
 export default middleware(async (req) => {
@@ -57,20 +57,20 @@ export default middleware(async (req) => {
       switch (token.role) {
         case "Patient":
           return NextResponse.redirect(
-            new URL("/protected/Dashboard/patient", nextUrl)
+            new URL("/Dashboard/patient", nextUrl)
           );
         case "Professional":
           return NextResponse.redirect(
-            new URL("/protected/Dashboard/professional", nextUrl)
+            new URL("/Dashboard/professional", nextUrl)
           );
         case "Admin":
           return NextResponse.redirect(
-            new URL("/protected/Dashboard/admin", nextUrl)
+            new URL("/Dashboard/admin", nextUrl)
           );
         case "Patient and Professional":
           return NextResponse.redirect(
             new URL(
-              "/protected/auth/select-professional-or-patient",
+              "/auth/select-professional-or-patient",
               nextUrl
             )
           );
@@ -85,7 +85,7 @@ export default middleware(async (req) => {
   if (isLoggedIn) {
     if (token.role === "Patient" && !patientRoutes.includes(nextUrl.pathname)) {
       return NextResponse.redirect(
-        new URL("/protected/Dashboard/patient", nextUrl)
+        new URL("/Dashboard/patient", nextUrl)
       );
     }
     if (
@@ -93,7 +93,7 @@ export default middleware(async (req) => {
       !professionalRoutes.includes(nextUrl.pathname)
     ) {
       return NextResponse.redirect(
-        new URL("/protected/Dashboard/professional", nextUrl)
+        new URL("/Dashboard/professional", nextUrl)
       );
     }
     if (
@@ -101,7 +101,7 @@ export default middleware(async (req) => {
       !adminRoutes.includes(nextUrl.pathname)
     ) {
       return NextResponse.redirect(
-        new URL("/protected/Dashboard/admin", nextUrl)
+        new URL("/Dashboard/admin", nextUrl)
       );
     }
     if (
@@ -110,7 +110,7 @@ export default middleware(async (req) => {
     ) {
       return NextResponse.redirect(
         new URL(
-          "/protected/auth/select-professional-or-patient",
+          "/auth/select-professional-or-patient",
           nextUrl
         )
       );
@@ -120,7 +120,7 @@ export default middleware(async (req) => {
   // Si no hay sesión y la ruta no es pública, redirige al login
   if (!isLoggedIn) {
     return NextResponse.redirect(
-      new URL("/protected/auth/login", nextUrl)
+      new URL("/auth/login", nextUrl)
     );
   }
 
