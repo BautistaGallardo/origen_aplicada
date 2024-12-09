@@ -25,7 +25,7 @@ export default function Navbar() {
         {isAuthenticated ? (
           <div className="flex items-center justify-between py-3 md:py-5 w-full">
             <h1 className="text-2xl font-semibold text-gray-800">
-              Hola, {session?.user?.name || "Usuario"}
+              Hola, {session?.user?.role || "Usuario"}
             </h1>
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
