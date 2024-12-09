@@ -23,7 +23,7 @@ export async function RutineGenerate(
     email:string
   ): Promise<DiaLaborable[]> {
     const diasLaborables: DiaLaborable[] = [];
-    let fechaActual = new Date(inicio);
+    const fechaActual = new Date(inicio);
   
     while (fechaActual <= fin) {
       const diaSemana = fechaActual.getDay(); // 0 = domingo, 1 = lunes, ..., 6 = sábado
