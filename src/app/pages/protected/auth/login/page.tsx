@@ -24,7 +24,7 @@ const LoginForm = () => {
       const response = await loginAction(values);
 
       if (response.success) {
-        route.push("/page/protected/Dashboard/patient");
+        route.push("/pages/protected/Dashboard/patient");
       } else if (response.error) {
         setError(response.error);
       } else {
