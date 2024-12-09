@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 
 // This is the object configuration, not the full Auth.js instance
 export default {
+    secret: process.env.AUTH_SECRET,
     providers: [
         Credentials({
             id: "user-login", // Identificador del proveedor
