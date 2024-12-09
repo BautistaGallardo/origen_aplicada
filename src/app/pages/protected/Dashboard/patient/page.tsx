@@ -1,5 +1,4 @@
 "use client";
-import { ChangePassword } from "@/actions/changePassword";
 import React, { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import TurnoTable from "./table";
