@@ -2,8 +2,11 @@ import NextAuth from "next-auth";
 import authConfig from "@/libs/auth.config";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import  SaveSession  from "./components/esperoQueEstoFuncione/page";
 
 const { auth: middleware } = NextAuth(authConfig);
+
+const roleSession = SaveSession()
 
 const publicRoutes = [
   '/',
@@ -54,7 +57,7 @@ export default middleware(async (req) => {
   if (publicRoutes.includes(nextUrl.pathname)) {
     if (isLoggedIn) {
       // Redirigir logueados al dashboard según su rol
-      switch (token.role) {
+      switch (roleSession) {
         case "Patient":
           return NextResponse.redirect(
             new URL("/protected/Dashboard/patient", nextUrl)
@@ -83,13 +86,13 @@ export default middleware(async (req) => {
 
   // Verifica acceso a rutas específicas según el rol
   if (isLoggedIn) {
-    if (token.role === "Patient" && !patientRoutes.includes(nextUrl.pathname)) {
+    if (roleSession === "Patient" && !patientRoutes.includes(nextUrl.pathname)) {
       return NextResponse.redirect(
         new URL("/protected/Dashboard/patient", nextUrl)
       );
     }
     if (
-      token.role === "Professional" &&
+      roleSession === "Professional" &&
       !professionalRoutes.includes(nextUrl.pathname)
     ) {
       return NextResponse.redirect(
@@ -97,7 +100,7 @@ export default middleware(async (req) => {
       );
     }
     if (
-      token.role === "Admin" &&
+      roleSession === "Admin" &&
       !adminRoutes.includes(nextUrl.pathname)
     ) {
       return NextResponse.redirect(
@@ -105,7 +108,7 @@ export default middleware(async (req) => {
       );
     }
     if (
-      token.role === "Patient and Professional" &&
+      roleSession === "Patient and Professional" &&
       !Select_Professional_or_Patient.includes(nextUrl.pathname)
     ) {
       return NextResponse.redirect(
@@ -129,7 +132,6 @@ export default middleware(async (req) => {
 });
 
 export const config = {
-  matcher: [
-    "/protected/:path*", 
-  ],
+  matcher: ["/protected/:path*"],
+
 };
