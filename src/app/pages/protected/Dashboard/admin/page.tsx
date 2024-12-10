@@ -10,14 +10,18 @@ const DashboardAdmin = () => {
   const isAuthenticated = status === "authenticated";
 
   const [isTurnoModalOpen, setIsTurnoModalOpen] = useState(false);
-  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] =
-    useState(false);
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [currentView, setCurrentView] = useState<
-    "dashboard" | "historialProfessional" | "historialPatient"
-  >("dashboard");
+  const [currentView, setCurrentView] = useState<"dashboard" | "historialProfessional" | "historialPatient">("dashboard");
 
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Filtros para la tabla
+  const [specialtyFilterPatient, setSpecialtyFilterPatient] = useState("");
+  const [stateFilterPatient, setStateFilterPatient] = useState("");
+
+  const [specialtyFilterProfessional, setSpecialtyFilterProfessional] = useState("");
+  const [stateFilterProfessional, setStateFilterProfessional] = useState("");
 
   const openTurnoModal = () => setIsTurnoModalOpen(true);
   const closeTurnoModal = () => setIsTurnoModalOpen(false);
@@ -37,11 +41,9 @@ const DashboardAdmin = () => {
         <div className="p-6 border-b border-custom-blueGray">
           {isAuthenticated && (
             <div className="space-y-4">
-              {/* Saludo */}
               <h1 className="text-2xl font-bold text-custom-blueGray">
                 Hola, {session?.user?.name || "Usuario"}
               </h1>
-              {/* Botones de navegación */}
               <nav className="space-y-4">
                 <ul className="space-y-4">
                   <li>
@@ -102,17 +104,24 @@ const DashboardAdmin = () => {
         )}
         {currentView === "historialProfessional" && (
           <div className="h-full">
+            {/* Filtros de Especialidad y Estado */}
+            
+
             <TurnoTableProfessional
               refreshKey={refreshKey}
               onTurnoCreated={handleTurnoCreated}
+              specialtyFilter={specialtyFilterProfessional}
+              stateFilter={stateFilterProfessional}
             />
           </div>
         )}
         {currentView === "historialPatient" && (
           <div className="h-full">
+            {/* Filtros de Estado de Pacientes */}
             <TurnoTablePatient
               refreshKey={refreshKey}
               onTurnoCreated={handleTurnoCreated}
+              stateFilter={stateFilterPatient}
             />
           </div>
         )}

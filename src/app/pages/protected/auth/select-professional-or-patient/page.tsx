@@ -67,19 +67,19 @@ const RoleForm = () => {
       )}
       <div className="flex justify-center space-x-4 mb-6">
         <Button
-          className={`w-32 ${roleUser === "Patient" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`w-32 ${roleUser === "Patient" ? "bg-white text-custom-orange border border-custom-orange rounded-md hover:bg-custom-orange hover:text-white transition duration-300" : " bg-white bg-custom-orange hover:text-white transition duration-300 "}`}
           onClick={() => setRole("Patient")}
         >
           Paciente
         </Button>
         <Button
-          className={`w-32 ${roleUser === "Professional" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`w-32 ${roleUser === "Professional" ? "bg-white text-custom-orange border border-custom-orange rounded-md hover:bg-custom-orange hover:text-white transition duration-300" : " bg-white bg-custom-orange hover:text-white transition duration-300 "}`}
           onClick={() => setRole("Professional")}
         >
           Profesional
         </Button>
       </div>
-      <Button className="w-full bg-black text-white" onClick={handleUpdateRole}>
+      <Button className="w-full bg-white text-custom-orange border border-custom-orange rounded-md hover:bg-custom-orange hover:text-white transition duration-300" onClick={handleUpdateRole}>
         Confirmar
       </Button>
     </div>

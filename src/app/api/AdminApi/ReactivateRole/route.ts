@@ -49,7 +49,47 @@ export async function PUT(req: NextRequest) {
                 data: { state: updateState },
             });
 
-            // Si no tiene otro rol activo y está activando, activar el usuario
+            if (!updateState) {
+                // Actualizar reservaciones pendientes a canceladas
+                const pendingReservations = await db.reservation.findMany({
+                    where: {
+                        patient_id: user.patient.id,
+                        state: "pendiente",
+                    },
+                    include: { Appointment: true },
+                });
+
+                await Promise.all(
+                    pendingReservations.map(async (reservation) => {
+                        // Cambiar el estado de la reservación
+                        await db.reservation.update({
+                            where: {
+                                appointment_id_patient_id: {
+                                    appointment_id: reservation.appointment_id,
+                                    patient_id: reservation.patient_id,
+                                },
+                            },
+                            data: { state: "cancelada" },
+                        });
+
+                        // Cambiar el estado del turno a "disponible" si no tiene otras reservaciones pendientes
+                        const remainingReservations = await db.reservation.count({
+                            where: {
+                                appointment_id: reservation.appointment_id,
+                                state: "pendiente",
+                            },
+                        });
+
+                        if (remainingReservations === 0) {
+                            await db.appointment.update({
+                                where: { id: reservation.appointment_id },
+                                data: { state: "disponible" },
+                            });
+                        }
+                    })
+                );
+            }
+
             if (updateState && !user.professional) {
                 await db.user.update({
                     where: { id: user.id },
@@ -57,7 +97,6 @@ export async function PUT(req: NextRequest) {
                 });
             }
 
-            // Si está desactivando y no tiene otro rol activo, desactivar el usuario
             if (!updateState && !user.professional) {
                 await db.user.update({
                     where: { id: user.id },
@@ -71,7 +110,59 @@ export async function PUT(req: NextRequest) {
                 data: { state: updateState },
             });
 
-            // Si no tiene otro rol activo y está activando, activar el usuario
+            if (!updateState) {
+                // Cancelar todos los turnos del profesional
+                const professionalAppointments = await db.appointment.findMany({
+                    where: {
+                        professional_id: user.professional.id,
+                        state: "pendiente",
+                    },
+                    include: { Reservations: true },
+                });
+
+                await Promise.all(
+                    professionalAppointments.map(async (appointment) => {
+                        // Cambiar el estado del turno a "cancelado"
+                        await db.appointment.update({
+                            where: { id: appointment.id },
+                            data: { state: "cancelado" },
+                        });
+
+                        // Cancelar todas las reservaciones asociadas al turno
+                        await Promise.all(
+                            appointment.Reservations.map(async (reservation) => {
+                                await db.reservation.update({
+                                    where: {
+                                        appointment_id_patient_id: {
+                                            appointment_id: reservation.appointment_id,
+                                            patient_id: reservation.patient_id,
+                                        },
+                                    },
+                                    data: { state: "cancelada" },
+                                });
+                            })
+                        );
+                    })
+                );
+
+                // Cancelar turnos "disponibles" sin reservaciones
+                const availableAppointments = await db.appointment.findMany({
+                    where: {
+                        professional_id: user.professional.id,
+                        state: "disponible",
+                    },
+                });
+
+                await Promise.all(
+                    availableAppointments.map(async (appointment) => {
+                        await db.appointment.update({
+                            where: { id: appointment.id },
+                            data: { state: "cancelado" },
+                        });
+                    })
+                );
+            }
+
             if (updateState && !user.patient) {
                 await db.user.update({
                     where: { id: user.id },
@@ -79,7 +170,6 @@ export async function PUT(req: NextRequest) {
                 });
             }
 
-            // Si está desactivando y no tiene otro rol activo, desactivar el usuario
             if (!updateState && !user.patient) {
                 await db.user.update({
                     where: { id: user.id },

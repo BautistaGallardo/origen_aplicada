@@ -8,6 +8,8 @@ import {
     TableCell,
 } from "@/components/ui/table";
 
+import ModalInfo from "@/components/admin/InfoModal/InfoModal"; // Asegúrate de que la ruta sea correcta
+
 interface TypeIdCard {
     id_number: string;
 }
@@ -22,14 +24,31 @@ interface User {
     TypeIdCard: TypeIdCard;
 }
 
-interface Patient {
+interface Professional {
     id: string;
     User: User;
     state: string;
+    specialty: string;
     registration_date: Date;
 }
 
-const Modal = ({
+interface TurnoTableProfessionalProps {
+    refreshKey: number;
+    onTurnoCreated: () => void;
+    stateFilter: string;
+    specialtyFilter: string;  // Agregar esta línea
+}
+
+interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    isLoading: boolean;
+}
+
+
+
+const Modal: React.FC<ModalProps> = ({
     isOpen,
     onClose,
     onConfirm,
@@ -70,21 +89,52 @@ const Modal = ({
     );
 };
 
-const TurnoTable = ({
+
+
+
+
+
+  const TurnoTable: React.FC<TurnoTableProfessionalProps>  = ({
     refreshKey,
     onTurnoCreated,
+    stateFilter,  // Recibe stateFilter como propiedad
 }: {
     refreshKey: number;
     onTurnoCreated: () => void;
+    stateFilter: string;  // Define la propiedad stateFilter
 }) => {
-    const [profesionales, setProfesionales] = useState<Patient[]>([]);
+    const [profesionales, setProfesionales] = useState<Professional[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [infoModalOpen, setInfoModalOpen] = useState(false);  // Estado para el nuevo modal
     const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
+    const [appointments, setAppointments] = useState([]);
+
+    const [specialtyFilter, setSpecialtyFilter] = useState<string>("");
+    const [sstateFilter, setStateFilter] = useState<string>("");
+
+    
+
+    const fetchAppointments = async (id: string) => {
+        try {
+            const response = await fetch(`/api/AdminApi/getAppointmentByProfessional?id=${id}`);
+            if (!response.ok) throw new Error("Error al obtener los turnos.");
+            const data = await response.json();
+            console.log(data)
+            if (data.success) {
+                setAppointments(data.data);
+            } else {
+                console.error(data.error);
+                setAppointments([]);
+            }
+        } catch (error) {
+            console.error("Error al obtener turnos:", error);
+        }
+    };
 
     const handleAction = async (id: string, action: "activate" | "deactivate") => {
         setIsLoading(true);
@@ -132,8 +182,9 @@ const TurnoTable = ({
                     throw new Error(errorData.error || "Error al cargar los datos");
                 }
                 const data = await response.json();
+                console.log(data)
 
-                const validData = data.map((patient: Patient) => ({
+                const validData = data.map((patient: Professional) => ({
                     ...patient,
                     User: {
                         ...patient.User,
@@ -151,7 +202,20 @@ const TurnoTable = ({
         fetchProfesionales();
     }, [refreshKey]);
 
-    const paginatedData = profesionales.slice(
+    // Filtro por especialidad y estado
+    const filteredProfesionales = profesionales.filter((profesional) => {
+        const professionalState = profesional.state ? "Activo" : "Inactivo";
+    
+        const matchesSpecialty =
+            specialtyFilter === "" || profesional.specialty === specialtyFilter;
+        const matchesState =
+            sstateFilter === "" || professionalState === sstateFilter;
+    
+        return matchesSpecialty && matchesState;
+    });
+    
+
+    const paginatedData = filteredProfesionales.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -161,10 +225,33 @@ const TurnoTable = ({
 
     return (
         <div>
+            {/* Filtros */}
+            <div className="mb-4 flex space-x-4">
+                <select
+                    className="px-4 py-2 border border-gray-300 rounded-md"
+                    value={specialtyFilter}
+                    onChange={(e) => setSpecialtyFilter(e.target.value)}
+                >
+                    <option value="">Filtrar por Especialidad</option>
+                    <option value="Psicologia">Psicologia</option>
+                    <option value="Odontologia">Odontologia</option>
+                </select>
+                <select
+                    className="px-4 py-2 border border-gray-300 rounded-md"
+                    value={sstateFilter}
+                    onChange={(e) => setStateFilter(e.target.value)}
+                >
+                    <option value="">Filtrar por Estado</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+
             <Table>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Nombre</TableHead>
+                        <TableHead>Especialidad</TableHead>
                         <TableHead>DNI</TableHead>
                         <TableHead>Teléfono</TableHead>
                         <TableHead>Estado</TableHead>
@@ -175,6 +262,7 @@ const TurnoTable = ({
                     {paginatedData.map((profesional) => (
                         <TableRow key={profesional.id}>
                             <TableCell>{`${profesional.User.name} ${profesional.User.lastName}`}</TableCell>
+                            <TableCell>{profesional.specialty}</TableCell>
                             <TableCell>{profesional.User.TypeIdCard.id_number}</TableCell>
                             <TableCell>{profesional.User.phone_number}</TableCell>
                             <TableCell>{profesional.state ? "Activo" : "Inactivo"}</TableCell>
@@ -200,10 +288,25 @@ const TurnoTable = ({
                                     </button>
                                 )}
                             </TableCell>
+                            <TableCell>
+                                <button
+                                    key={profesional.id}
+                                    onClick={() => {
+                                        setSelectedProfessionalId(profesional.id);
+                                        fetchAppointments(profesional.id);
+                                        setInfoModalOpen(true);  // Abre el modal con la información
+                                    }}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                                >
+                                    Ver Información
+                                </button>
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+
+            {/* Paginación */}
             <div className="flex justify-center mt-4 space-x-4">
                 <button
                     disabled={currentPage === 1}
@@ -221,13 +324,22 @@ const TurnoTable = ({
                     Siguiente
                 </button>
             </div>
+
+            {/* Modal de información */}
+            <ModalInfo
+                isOpen={infoModalOpen}
+                onClose={() => setInfoModalOpen(false)}
+                professionalId={selectedProfessionalId}  // Usamos professionalId en lugar de professional
+                appointments={appointments}
+            />
+
             <Modal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
                 onConfirm={async () => {
-                    if (selectedProfessionalId) {
-                        await handleAction(selectedProfessionalId, "deactivate");
-                    }
+                  if (selectedProfessionalId) {
+                    await handleAction(selectedProfessionalId, "deactivate");
+                  }
                 }}
                 isLoading={isLoading}
             />

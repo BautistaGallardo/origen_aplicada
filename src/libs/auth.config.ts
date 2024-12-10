@@ -12,15 +12,15 @@ export default {
             id: "user-login", // Identificador del proveedor
             name: "User Login",
             authorize: async (credentials) => {
-                // Validate the credentials with Zod schema
+                // Validar las credenciales con el esquema de Zod
                 const parsed = LoginPacienteSchema.safeParse(credentials);
                 if (!parsed.success) {
                     throw new Error("Invalid credentials");
                 }
-                
+            
                 const { email, password } = parsed.data;
-
-                // Fetch user from the database
+            
+                // Obtener el usuario de la base de datos
                 const user = await db.user.findUnique({
                     where: { email },
                     include: {
@@ -28,34 +28,40 @@ export default {
                         professional: true,
                     },
                 });
-
+            
                 if (!user) {
                     throw new Error("No user found");
                 }
-
-                // Check if the provided password matches the hashed password in the database
+            
+                // Verificar si el estado del usuario es 'false', lo que significa que la cuenta está desactivada
+                if (!user.state) {
+                    throw new Error("User account is deactivated");
+                }
+            
+                // Verificar si la contraseña coincide con la contraseña encriptada
                 const passwordMatch = await bcrypt.compare(password, user.password);
                 if (!passwordMatch) {
                     throw new Error("Invalid password");
                 }
-
-                // Determine user role based on their assigned roles
-                const isPaciente = !!user.patient;
-                const isProfesional = !!user.professional;
+            
+                // Validar los roles solo si el estado es 'true'
+                const isPaciente = user.patient && user.patient.state;
+                const isProfesional = user.professional && user.professional.state;
+            
                 if (!isPaciente && !isProfesional) {
-                    throw new Error("User has no roles assigned");
+                    throw new Error("User has no active roles assigned");
                 }
-
-                // Set the role based on the user's roles
+            
+                // Establecer el rol basado en los roles activos del usuario
                 const role = isPaciente && isProfesional ? "Patient and Professional" 
                             : isPaciente ? "Patient" 
                             : "Professional";
-
-                // Create the user and role object to return
+            
+                // Crear el objeto de usuario con su rol y retornarlo
                 const userWithRole = {
                     ...user,
                     role,
-                  };
+                };
                 return userWithRole;
             },
         }),

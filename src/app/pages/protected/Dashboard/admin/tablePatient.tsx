@@ -29,7 +29,22 @@ interface Patient {
     registration_date: Date;
 }
 
-const Modal = ({
+interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    isLoading: boolean;
+}
+
+interface TurnoTablePatientProps {
+    refreshKey: number;
+    onTurnoCreated: () => void;
+    stateFilter: string; // Aquí se pasa el filtro de estado
+  }
+  
+
+
+const Modal: React.FC<ModalProps> = ({
     isOpen,
     onClose,
     onConfirm,
@@ -70,7 +85,7 @@ const Modal = ({
     );
 };
 
-const TurnoTable = ({
+const TurnoTable:React.FC<TurnoTablePatientProps> = ({
     refreshKey,
     onTurnoCreated,
 }: {
@@ -84,155 +99,173 @@ const TurnoTable = ({
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [stateFilter, setStateFilter] = useState<string>(""); // Aquí está el filtro de estado
     const itemsPerPage = 5;
-
+  
     const handleAction = async (id: string, action: "activate" | "deactivate") => {
-        setIsLoading(true);
-        try {
-            // Actualiza el estado localmente para un feedback visual inmediato
-            setPacientes((prev) =>
-                prev.map((paciente) =>
-                    paciente.User.id === id
-                        ? { ...paciente, state: action === "activate" ? "activo" : "inactivo" }
-                        : paciente
-                )
-            );
-
-            const response = await fetch("http://localhost:3000/api/AdminApi/ReactivateRole", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ id, action, role: "patient" }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Error al actualizar el estado");
-            }
-
-            onTurnoCreated(); // Refresca la tabla después de la acción
-            setModalOpen(false);
-        } catch (err: any) {
-            console.error("Error al actualizar el estado:", err);
-            setError(err.message || "Error desconocido");
-        } finally {
-            setIsLoading(false);
+      setIsLoading(true);
+      try {
+        setPacientes((prev) =>
+          prev.map((paciente) =>
+            paciente.User.id === id
+              ? { ...paciente, state: action === "activate" ? "activo" : "inactivo" }
+              : paciente
+          )
+        );
+  
+        const response = await fetch("http://localhost:3000/api/AdminApi/ReactivateRole", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id, action, role: "patient" }),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Error al actualizar el estado");
         }
+  
+        onTurnoCreated(); // Refresca la tabla después de la acción
+        setModalOpen(false);
+      } catch (err: any) {
+        console.error("Error al actualizar el estado:", err);
+        setError(err.message || "Error desconocido");
+      } finally {
+        setIsLoading(false);
+      }
     };
-
+  
     useEffect(() => {
-        const fetchPacientes = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await fetch("/api/AdminApi/getPatients");
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Error al cargar los datos");
-                }
-                const data = await response.json();
-
-                const validData = data.map((patient: Patient) => ({
-                    ...patient,
-                    User: {
-                        ...patient.User,
-                        TypeIdCard: patient.User.TypeIdCard || { id_number: "N/A" },
-                    },
-                }));
-                setPacientes(validData);
-            } catch (err: any) {
-                setError(err.message || "Error desconocido");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPacientes();
+      const fetchPacientes = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await fetch("/api/AdminApi/getPatients");
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Error al cargar los datos");
+          }
+          const data = await response.json();
+  
+          const validData = data.map((patient: Patient) => ({
+            ...patient,
+            User: {
+              ...patient.User,
+              TypeIdCard: patient.User.TypeIdCard || { id_number: "N/A" },
+            },
+          }));
+          setPacientes(validData);
+        } catch (err: any) {
+          setError(err.message || "Error desconocido");
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchPacientes();
     }, [refreshKey]);
-
-    const paginatedData = pacientes.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
+  
+    // Filtrar pacientes según el estado
+    const filteredPacientes = pacientes.filter((paciente) => {
+        const pacienteState = paciente.state ? "Activo" : "Inactivo";
+        if (stateFilter === "") return true; // Si no hay filtro, mostramos todos
+        return pacienteState === stateFilter; // Filtrar por estado
+    });
+  
+    const paginatedData = filteredPacientes.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
     );
-
+  
     if (loading) return <div>Cargando...</div>;
     if (error) return <div className="text-red-500">Error: {error}</div>;
-
+  
     return (
-        <div>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Nombre</TableHead>
-                        <TableHead>DNI</TableHead>
-                        <TableHead>Teléfono</TableHead>
-                        <TableHead>Estado</TableHead>
-                        <TableHead>Acción</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {paginatedData.map((paciente) => (
-                        <TableRow key={paciente.id}>
-                            <TableCell>{`${paciente.User.name} ${paciente.User.lastName}`}</TableCell>
-                            <TableCell>{paciente.User.TypeIdCard.id_number}</TableCell>
-                            <TableCell>{paciente.User.phone_number}</TableCell>
-                            <TableCell>{paciente.state ? "Activo" : "Inactivo"}</TableCell>
-                            <TableCell>
-                                {paciente.state ? (
-                                    <button
-                                        onClick={() => {
-                                            setSelectedPatientId(paciente.User.id);
-                                            setModalOpen(true);
-                                        }}
-                                        className="bg-red-500 text-white px-4 py-2 rounded"
-                                    >
-                                        Borrar
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={async () =>
-                                            await handleAction(paciente.User.id, "activate")
-                                        }
-                                        className="bg-green-500 text-white px-4 py-2 rounded"
-                                    >
-                                        Reactivar
-                                    </button>
-                                )}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <div className="flex justify-center mt-4 space-x-4">
-                <button
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                >
-                    Anterior
-                </button>
-                <span className="px-4 py-2">{currentPage}</span>
-                <button
-                    disabled={currentPage * itemsPerPage >= pacientes.length}
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                >
-                    Siguiente
-                </button>
-            </div>
-            <Modal
-                isOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
-                onConfirm={async () => {
-                    if (selectedPatientId) {
-                        await handleAction(selectedPatientId, "deactivate");
-                    }
-                }}
-                isLoading={isLoading}
-            />
+      <div>
+        {/* Filtro de Estado */}
+        <div className="mb-4 flex space-x-4">
+          <select
+            value={stateFilter}
+            onChange={(e) => setStateFilter(e.target.value)} // Actualiza el estado del filtro
+            className="px-3 py-2 border rounded-md"
+          >
+            <option value="">Filtrar por estado</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
         </div>
+  
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nombre</TableHead>
+              <TableHead>DNI</TableHead>
+              <TableHead>Teléfono</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Acción</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.map((paciente) => (
+              <TableRow key={paciente.id}>
+                <TableCell>{`${paciente.User.name} ${paciente.User.lastName}`}</TableCell>
+                <TableCell>{paciente.User.TypeIdCard.id_number}</TableCell>
+                <TableCell>{paciente.User.phone_number}</TableCell>
+                <TableCell>{paciente.state ? "Activo" : "Inactivo"}</TableCell>
+                <TableCell>
+                  {paciente.state ? (
+                    <button
+                      onClick={() => {
+                        setSelectedPatientId(paciente.User.id);
+                        setModalOpen(true);
+                      }}
+                      className="bg-red-500 text-white px-4 py-2 rounded"
+                    >
+                      Borrar
+                    </button>
+                  ) : (
+                    <button
+                      onClick={async () => await handleAction(paciente.User.id, "activate")}
+                      className="bg-green-500 text-white px-4 py-2 rounded"
+                    >
+                      Reactivar
+                    </button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <div className="flex justify-center mt-4 space-x-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Anterior
+          </button>
+          <span className="px-4 py-2">{currentPage}</span>
+          <button
+            disabled={currentPage * itemsPerPage >= pacientes.length}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >
+            Siguiente
+          </button>
+        </div>
+        <Modal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onConfirm={async () => {
+            if (selectedPatientId) {
+              await handleAction(selectedPatientId, "deactivate");
+            }
+          }}
+          isLoading={isLoading}
+        />
+      </div>
     );
-};
-
-export default TurnoTable;
+  };
+  
+  export default TurnoTable;

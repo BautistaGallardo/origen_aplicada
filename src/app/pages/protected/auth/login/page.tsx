@@ -32,6 +32,7 @@ const LoginForm = () => {
       }
     } catch (err) {
       if (err instanceof z.ZodError) {
+        console.log(err)
         setError("Por favor, verifica los datos ingresados.");
       } else {
         setError("Error al iniciar sesión. Intenta nuevamente.");
